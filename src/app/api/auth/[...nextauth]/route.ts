@@ -1,6 +1,21 @@
-import { authOptions } from "@/utils/auth";
-import NextAuth from "next-auth";
+// import { handlers } from "@/auth";
 
-const handler = NextAuth(authOptions);
+// export const { GET, POST } = handlers
 
-export { handler as GET, handler as POST };
+
+import NextAuth from "next-auth"
+import Google from "next-auth/providers/google"
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+    providers: [
+        Google({
+            authorization: {
+                params: {
+                    prompt: "consent",
+                    access_type: "offline",
+                    response_type: "code",
+                },
+            },
+        }),
+    ],
+})
