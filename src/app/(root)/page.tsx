@@ -1,5 +1,6 @@
 "use client"
 import PostForm from "@/components/PostForm";
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
 interface Post {
@@ -38,6 +39,8 @@ export default function Home() {
             <p className="mt-2 text-sm text-gray-500">
               تاریخ ایجاد: {new Date(post.createdAt).toLocaleString()}
             </p>
+            <Button>Click me</Button>
+
           </div>
         ))}
       </div>
