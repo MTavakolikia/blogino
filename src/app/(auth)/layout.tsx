@@ -5,9 +5,12 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main>
-      {children}
-
-    </main>
+    <html lang="en">
+      <body>
+        <main>
+          {children}
+        </main>
+      </body>
+    </html>
   );
 }

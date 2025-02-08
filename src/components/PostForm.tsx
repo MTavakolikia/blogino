@@ -1,4 +1,3 @@
-// app/components/PostForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -25,10 +24,12 @@ export default function PostForm() {
         alert("پست با موفقیت ایجاد شد!");
         window.location.reload(); // رفرش صفحه برای اعمال تغییرات
       } else {
-        alert("خطا در ایجاد پست!");
+        const errorData = await response.json(); // خواندن خطا از سرور
+        alert(`خطا در ایجاد پست: ${errorData.details || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Error:", error);
+      alert("خطا در ارسال درخواست!");
     }
   };
 
