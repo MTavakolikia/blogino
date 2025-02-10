@@ -2,7 +2,7 @@
 export const FetchPosts = async (): Promise<any[]> => {
 
     try {
-        const response = await fetch("/api/posts");
+        const response = await fetch("/api/articles");
         const data = await response.json();
         return data
     } catch (error) {

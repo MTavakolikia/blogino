@@ -1,46 +1,51 @@
-"use client"
+"use client";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 
-interface Post {
-    id: number;
+interface Article {
+    id: string; // تغییر از number به string (چون Prisma از cuid استفاده می‌کند)
     title: string;
     content: string;
     createdAt: string;
+    author: {
+        id: string;
+        name: string | null;
+        email: string | null;
+    };
 }
 
 export default function Posts() {
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [articles, setArticles] = useState<Article[]>([]);
 
-    const fetchPosts = async () => {
+    const fetchArticles = async () => {
         try {
-            const response = await fetch("/api/posts");
+            const response = await fetch("/api/articles");
             const data = await response.json();
-
-            setPosts(data);
+            setArticles(data);
         } catch (error) {
-            console.error("Error fetching posts:", error);
+            console.error("Error fetching articles:", error);
         }
     };
 
     useEffect(() => {
-        fetchPosts();
+        fetchArticles();
     }, []);
-
 
     return (
         <div className="mt-8 space-y-4">
-            {posts.map((post) => (
-                <div key={post.id} className="p-4 border border-gray-200 rounded-lg">
-                    <h2 className="text-xl font-semibold">{post.title}</h2>
-                    <p className="mt-2 text-gray-700">{post.content}</p>
+            {articles.map((article) => (
+                <div key={article.id} className="p-4 border border-gray-200 rounded-lg">
+                    <h2 className="text-xl font-semibold">{article.title}</h2>
+                    <p className="mt-2 text-gray-700">{article.content}</p>
                     <p className="mt-2 text-sm text-gray-500">
-                        تاریخ ایجاد: {new Date(post.createdAt).toLocaleString()}
+                        تاریخ ایجاد: {new Date(article.createdAt).toLocaleString()}
+                    </p>
+                    <p className="mt-2 text-sm text-gray-500">
+                        نویسنده: {article.author.name} ({article.author.email})
                     </p>
                     <Button>Click me</Button>
-
                 </div>
             ))}
         </div>
-    )
+    );
 }

@@ -5,9 +5,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main>
-      admin-dashboard
-      {children}
-    </main>
+    <html lang="en">
+      <body>
+        <main>
+          {children}
+        </main>
+      </body>
+    </html>
   );
 }

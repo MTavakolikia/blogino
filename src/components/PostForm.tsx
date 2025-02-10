@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 
 export default function PostForm() {
@@ -10,21 +9,22 @@ export default function PostForm() {
     e.preventDefault();
 
     try {
-      const response = await fetch("/api/posts", {
+      const authorId = "someAuthorId"; // Replace with actual authorId (e.g., from session)
+      const response = await fetch("/api/articles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, content }),
+        body: JSON.stringify({ title, content, authorId }), // Include authorId
       });
 
       if (response.ok) {
         setTitle("");
         setContent("");
         alert("پست با موفقیت ایجاد شد!");
-        window.location.reload(); // رفرش صفحه برای اعمال تغییرات
+        window.location.reload();
       } else {
-        const errorData = await response.json(); // خواندن خطا از سرور
+        const errorData = await response.json();
         alert(`خطا در ایجاد پست: ${errorData.details || "Unknown error"}`);
       }
     } catch (error) {
