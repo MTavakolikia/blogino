@@ -7,25 +7,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  password      String    // پسورد کاربر
-  role          String    // نقش کاربر (admin, writer, user)
-  articles      Article[] // رابطه معکوس با مدل Article
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+enum Role {
+  ADMIN   
+  AUTHOR   
+  USER   
 }
 
-model Article {
-  id          String    @id @default(cuid())
-  title       String
-  content     String
-  published   Boolean   @default(false)
-  authorId    String?   // اختیاری
-  author      User?     @relation(fields: [authorId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+model User {
+  id            String    @id @default(cuid()) 
+  firstName     String   
+  lastName      String   
+  email         String    @unique          
+  password      String  
+  role          Role      @default(AUTHOR)   
+  createdAt     DateTime  @default(now()) 
+  updatedAt     DateTime  @updatedAt     
+  profilePic String? 
+  posts         Post[]    
+  comments      Comment[] 
+  likes         Like[]   
+}
+
+model Post {
+  id          String    @id @default(cuid())  
+  title       String    
+  content     String   
+  published   Boolean   @default(false)  
+  images     String[] 
+  authorId    String   
+  author      User      @relation(fields: [authorId], references: [id])
+  comments    Comment[] 
+  likes       Like[]   
+  createdAt   DateTime  @default(now())   
+  updatedAt   DateTime  @updatedAt        
+}
+
+model Comment {
+  id          String    @id @default(cuid())   
+  content     String   
+  approved    Boolean   @default(false)        
+  userId      String?   
+  user        User?     @relation(fields: [userId], references: [id]) 
+  postId      String    
+  post        Post      @relation(fields: [postId], references: [id]) 
+  createdAt   DateTime  @default(now())     
+  updatedAt   DateTime  @updatedAt     
+}
+
+model Like {
+  id          String    @id @default(cuid()) 
+  userId      String  
+  user        User      @relation(fields: [userId], references: [id])
+  postId      String   
+  post        Post      @relation(fields: [postId], references: [id])
+  createdAt   DateTime  @default(now())       
 }
