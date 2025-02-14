@@ -1,26 +1,16 @@
 import { NextResponse } from "next/server";
-import { deleteCookie } from "cookies-next";
+import { serialize } from "cookie";
 
-export async function POST(request: Request) {
-    try {
-        const response = NextResponse.json({ message: "Logout successful" }, { status: 200 });
+export async function POST() {
+    const cookie = serialize("auth_token", "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
+        maxAge: 0, // حذف کوکی
+    });
 
-        deleteCookie("auth_token",
-            {
-                req: { headers: request.headers },
-                res: response,
-            },
-        );
-
-        return response;
-    } catch (error) {
-        console.error("Error during logout:", error);
-        return NextResponse.json(
-            {
-                error: "Failed to logout",
-                details: error instanceof Error ? error.message : "Unknown error",
-            },
-            { status: 500 }
-        );
-    }
+    const response = NextResponse.json({ message: "خروج موفقیت‌آمیز!" });
+    response.headers.set("Set-Cookie", cookie);
+    return response;
 }

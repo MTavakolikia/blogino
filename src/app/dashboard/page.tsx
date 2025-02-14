@@ -1,8 +1,26 @@
-import LogoutButton from '@/components/LogoutButton'
-import React from 'react'
+"use client";
 
-export default function Writer() {
+import { useEffect, useState } from "react";
+import { User } from "@/types/user";
+
+export default function Dashboard() {
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        const stringifiedUser = sessionStorage.getItem("user");
+        if (stringifiedUser) {
+            setUser(JSON.parse(stringifiedUser));
+        }
+    }, []);
+
+    if (!user) {
+        return <p>لطفاً وارد شوید.</p>;
+    }
+
     return (
-        <div><LogoutButton /></div>
-    )
+        <div>
+            <h1>داشبورد</h1>
+            <p>سلام، {user.firstName} {user.lastName}! نقش شما: {user.role}</p>
+        </div>
+    );
 }

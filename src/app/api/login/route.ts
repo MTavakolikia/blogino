@@ -1,78 +1,52 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/utils/prisma";
-import bcrypt from "bcrypt";
+import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { setCookie } from "cookies-next";
+import { serialize } from "cookie";
+import { prisma } from "@/utils/prisma";
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
     try {
-        const { email, password } = await request.json();
+        const { email, password } = await req.json();
 
-        if (!email || !password) {
-            return NextResponse.json(
-                { error: "Missing required fields", details: "Email and password are required" },
-                { status: 400 }
-            );
-        }
-
-        const user = await prisma.user.findUnique({
-            where: { email },
-        });
+        // پیدا کردن کاربر در دیتابیس
+        const user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
-            return NextResponse.json(
-                { error: "Invalid credentials", details: "Email or password is incorrect" },
-                { status: 401 }
-            );
+            return NextResponse.json({ error: "کاربر یافت نشد!" }, { status: 404 });
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        if (!isPasswordValid) {
-            return NextResponse.json(
-                { error: "Invalid credentials", details: "Email or password is incorrect" },
-                { status: 401 }
-            );
+        // بررسی رمز عبور
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return NextResponse.json({ error: "رمز عبور اشتباه است!" }, { status: 401 });
         }
 
+        // ایجاد توکن JWT
         const token = jwt.sign(
-            { userId: user.id, role: user.role },
+            { id: user.id, email: user.email, role: user.role },
             process.env.JWT_SECRET!,
-            { expiresIn: "1h" }
+            { expiresIn: "7d" } // اعتبار 7 روزه
         );
 
-        const response = NextResponse.json(
-            {
-                message: "Login successful",
-                user: {
-                    id: user.id,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    email: user.email,
-                    role: user.role,
-                },
-            },
-            { status: 200 }
-        );
-
-        setCookie("auth_token", token, {
-            req: { headers: request.headers },
-            res: response,
-            maxAge: 60 * 60,
+        // ذخیره توکن در کوکی
+        const cookie = serialize("auth_token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
+            path: "/",
+            maxAge: 60 * 60 * 24 * 7, // 7 روز
         });
 
+        const response = NextResponse.json({
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            role: user.role,
+        });
+        response.headers.set("Set-Cookie", cookie);
         return response;
     } catch (error) {
-        console.error("Error during login:", error);
-        return NextResponse.json(
-            {
-                error: "Failed to login",
-                details: error instanceof Error ? error.message : "Unknown error",
-            },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "مشکلی پیش آمد!" }, { status: 500 });
     }
 }

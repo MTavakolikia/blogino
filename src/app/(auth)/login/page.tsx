@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import useUserStore from "@/store/userStore";
 
 const loginSchema = z.object({
     email: z.string().email("ایمیل معتبر نیست"),
@@ -20,12 +22,16 @@ export default function LoginForm() {
     } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
     });
-
+    const { setUser } = useUserStore();
+    const router = useRouter();
     const onSubmit = async (data: LoginFormData) => {
         try {
-            await axios.post("/api/login", data);
+            const res = await axios.post("/api/login", data);
+            setUser(res.data)
             alert("ورود با موفقیت انجام شد!");
-            window.location.href = "/dashboard";
+            // window.location.href = "/dashboard";
+            router.push("/dashboard"); // Use router.push for redirection
+
         } catch (err: any) {
             alert(err.response?.data?.error || "خطایی رخ داد.");
         }

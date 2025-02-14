@@ -36,6 +36,7 @@ export default function EditProfileForm({ user }: { user: any }) {
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
                     نام
                 </label>
+
                 <input
                     type="text"
                     id="firstName"
