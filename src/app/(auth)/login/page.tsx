@@ -1,11 +1,24 @@
-
 "use client"
+
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import useUserStore from "@/store/userStore";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 const loginSchema = z.object({
     email: z.string().email("ایمیل معتبر نیست"),
@@ -14,7 +27,7 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function LoginForm() {
+export default function Login({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
     const {
         register,
         handleSubmit,
@@ -24,47 +37,64 @@ export default function LoginForm() {
     });
     const { setUser } = useUserStore();
     const router = useRouter();
+
     const onSubmit = async (data: LoginFormData) => {
         try {
             const res = await axios.post("/api/login", data);
-            setUser(res.data)
+            setUser(res.data);
             alert("ورود با موفقیت انجام شد!");
-            // window.location.href = "/dashboard";
-            router.push("/dashboard"); // Use router.push for redirection
-
+            router.push("/dashboard");
         } catch (err: any) {
             alert(err.response?.data?.error || "خطایی رخ داد.");
         }
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-                <label className="block text-sm font-medium text-gray-700">ایمیل:</label>
-                <input
-                    {...register("email")}
-                    type="email"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-                {errors.email && <p className="text-red-500">{errors.email.message}</p>}
-            </div>
 
-            <div>
-                <label className="block text-sm font-medium text-gray-700">رمز عبور:</label>
-                <input
-                    {...register("password")}
-                    type="password"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-                {errors.password && <p className="text-red-500">{errors.password.message}</p>}
-            </div>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className={cn("flex flex-col gap-6", className)}
+            {...props}
+        >
 
-            <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-                ورود
-            </button>
-        </form>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-2xl">Login</CardTitle>
+                    <CardDescription>
+                        Enter your email below to login to your account
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input {...register("email")} id="email" type="email" placeholder="m@example.com" />
+                            {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+                        </div>
+                        <div className="grid gap-2">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="password">Password</Label>
+                                <Link href="/forget-password" className="text-sm text-indigo-600 hover:underline">                    Forgot your password?
+                                </Link>
+                            </div>
+                            <Input {...register("password")} id="password" type="password" />
+                            {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+                        </div>
+                        <motion.div whileHover={{ scale: 1.05 }}>
+                            <Button type="submit" className="w-full">Login</Button>
+                        </motion.div>
+
+                    </form>
+                    <div className="mt-8 text-center text-sm">
+                        Don&apos;t have an account?{" "}
+                        <Link href="/register" className="underline">                Sign up
+                        </Link>
+                    </div>
+                </CardContent>
+            </Card>
+        </motion.div>
+
     );
 }

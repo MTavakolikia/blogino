@@ -4,6 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import axios from "axios";
 import { RegisterFormData, registerSchema } from "@/lib/validators/auth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 export default function RegisterForm() {
     const [loading, setLoading] = useState(false);
@@ -23,12 +28,12 @@ export default function RegisterForm() {
 
         try {
             const response = await axios.post("/api/register", data);
-            alert(response.data.message || "ثبت‌نام با موفقیت انجام شد!");
+            alert(response.data.message || "Registration successful!");
         } catch (err: any) {
             if (err.response && err.response.data) {
-                setError(err.response.data.error || "خطایی رخ داد.");
+                setError(err.response.data.error || "An error occurred.");
             } else {
-                setError("خطایی رخ داد، لطفاً دوباره امتحان کنید.");
+                setError("An error occurred, please try again.");
             }
         } finally {
             setLoading(false);
@@ -36,66 +41,56 @@ export default function RegisterForm() {
     };
 
     return (
-        <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
-            <h1 className="text-2xl font-bold mb-6 text-center">ثبت‌نام</h1>
-            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">نام:</label>
-                    <input
-                        {...register("firstName")}
-                        type="text"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    />
-                    {errors.firstName && (
-                        <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
-                    )}
-                </div>
+        <Card className="max-w-md mx-auto p-8">
+            <CardHeader>
+                <CardTitle className="text-2xl text-center">Register</CardTitle>
+            </CardHeader>
+            <CardContent>
+                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <div>
+                        <Label htmlFor="firstName">First Name</Label>
+                        <Input id="firstName" {...register("firstName")} />
+                        {errors.firstName && (
+                            <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
+                        )}
+                    </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">نام خانوادگی:</label>
-                    <input
-                        {...register("lastName")}
-                        type="text"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    />
-                    {errors.lastName && (
-                        <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
-                    )}
-                </div>
+                    <div>
+                        <Label htmlFor="lastName">Last Name</Label>
+                        <Input id="lastName" {...register("lastName")} />
+                        {errors.lastName && (
+                            <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+                        )}
+                    </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">ایمیل:</label>
-                    <input
-                        {...register("email")}
-                        type="email"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    />
-                    {errors.email && (
-                        <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-                    )}
-                </div>
+                    <div>
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" type="email" {...register("email")} />
+                        {errors.email && (
+                            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                        )}
+                    </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">رمز عبور:</label>
-                    <input
-                        {...register("password")}
-                        type="password"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    />
-                    {errors.password && (
-                        <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-                    )}
-                </div>
+                    <div>
+                        <Label htmlFor="password">Password</Label>
+                        <Input id="password" type="password" {...register("password")} />
+                        {errors.password && (
+                            <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                        )}
+                    </div>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                    {loading ? "در حال ثبت‌نام..." : "ثبت‌نام"}
-                </button>
-            </form>
-        </div>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                        {loading ? "Registering..." : "Register"}
+                    </Button>
+                </form>
+                <div className="mt-8 text-center text-sm">
+                    Already have an account?{" "}
+                    <Link href="/Login" className="underline">
+                        Login
+                    </Link>
+                </div>
+            </CardContent>
+        </Card>
     );
 }

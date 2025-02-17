@@ -1,4 +1,6 @@
 
+import "@/styles/globals.css";
+
 export default function AuthLayout({
   children,
 }: Readonly<{
@@ -7,9 +9,10 @@ export default function AuthLayout({
   return (
     <html lang="en">
       <body>
-        <main className="h-full w-full flex items-center justify-centerS">
-          {children}
-        </main>
+        <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+          <div className="w-full max-w-sm">          {children}
+          </div>
+        </div>
       </body>
     </html>
   );

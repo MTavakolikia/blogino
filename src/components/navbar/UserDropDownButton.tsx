@@ -23,16 +23,16 @@ export function UserDropDownButton() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuItem>
-                    <Link href={"/login"}>
-                        <LogIn />
+                    <Link href={"/login"} className="flex items-center gap-3">
+                        <LogIn size={20} />
                         Login
                     </Link>
 
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                    <Link href={"/register"}>
+                    <Link className="flex items-center gap-3" href={"/register hover:text-cyan-800"}>
 
-                        <UserCheck />Signup
+                        <UserCheck size={20} />Signup
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>

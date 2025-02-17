@@ -14,3 +14,10 @@ export const loginSchema = z.object({
     password: z.string().min(6, "رمز عبور حداقل 6 کاراکتر باید باشد"),
 });
 export type LoginFormData = z.infer<typeof loginSchema>;
+
+
+export const forgotPasswordSchema = z.object({
+    email: z.string().email("Invalid email address"),
+});
+
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
