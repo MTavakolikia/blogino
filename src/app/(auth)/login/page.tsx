@@ -7,7 +7,6 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import useUserStore from "@/store/userStore";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -27,7 +26,7 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function Login({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
+export default function Login() {
     const {
         register,
         handleSubmit,
@@ -52,11 +51,9 @@ export default function Login({ className, ...props }: React.ComponentPropsWitho
     return (
 
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className={cn("flex flex-col gap-6", className)}
-            {...props}
         >
 
             <Card>
