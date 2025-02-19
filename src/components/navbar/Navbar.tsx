@@ -14,7 +14,6 @@ function Navbar() {
             <div className="flex items-center justify-center gap-2">
                 <UserDropDownButton />
                 <ThemeToggler />
-
             </div>
         </div>
     )
