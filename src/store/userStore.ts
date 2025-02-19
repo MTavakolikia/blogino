@@ -1,3 +1,5 @@
+"use client"
+
 import { User } from "@/types/user";
 import { create } from "zustand";
 
@@ -10,7 +12,7 @@ interface UserStore {
 }
 
 const useUserStore = create<UserStore>((set) => ({
-    user: null,
+    user: typeof window !== "undefined" ? JSON.parse(sessionStorage.getItem("user") || "null") : null,
     setUser: (user) => {
         set({ user });
         if (typeof window !== "undefined") {
@@ -24,5 +26,6 @@ const useUserStore = create<UserStore>((set) => ({
         }
     },
 }));
+
 
 export default useUserStore;
