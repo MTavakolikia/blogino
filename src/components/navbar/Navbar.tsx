@@ -1,7 +1,8 @@
 import { Rss } from "lucide-react"
-import { NavigationMenuBar } from "./NavigationMenuBar"
+// import { NavigationMenuBar } from "./NavigationMenuBar"
 import { ThemeToggler } from "./ThemeToggler"
 import { UserDropDownButton } from "./UserDropDownButton"
+import SearchBox from "./SearchBox"
 
 function Navbar() {
     return (
@@ -10,7 +11,8 @@ function Navbar() {
                 <Rss color="white" size={36} />
                 <span>Blogino</span>
             </div>
-            <NavigationMenuBar />
+            {/* <NavigationMenuBar /> */}
+            <SearchBox />
             <div className="flex items-center justify-center gap-2">
                 <UserDropDownButton />
                 <ThemeToggler />
