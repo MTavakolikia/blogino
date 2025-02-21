@@ -1,17 +1,18 @@
 "use client"
 import axios from "axios";
+import { toast } from "sonner"
 
 export default function LogoutButton() {
     const handleLogout = async () => {
         try {
             await axios.post("/api/logout");
 
-            alert("خروج با موفقیت انجام شد!");
+            toast("خروج با موفقیت انجام شد!");
 
             window.location.href = "/login";
         } catch (error) {
             console.error("Logout failed:", error);
-            alert("خطایی رخ داد، لطفاً دوباره امتحان کنید.");
+            toast("خطایی رخ داد، لطفاً دوباره امتحان کنید.");
         }
     };
 

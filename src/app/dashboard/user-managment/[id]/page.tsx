@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { toast } from "sonner"
 
 export default function EditProfileForm({ user }: { user: any }) {
     const [firstName, setFirstName] = useState(user.firstName);
@@ -19,14 +20,14 @@ export default function EditProfileForm({ user }: { user: any }) {
             });
 
             if (response.ok) {
-                alert("پروفایل با موفقیت به‌روزرسانی شد!");
+                toast("پروفایل با موفقیت به‌روزرسانی شد!");
             } else {
                 const errorData = await response.json();
-                alert(`خطا در به‌روزرسانی پروفایل: ${errorData.details || "Unknown error"}`);
+                toast(`خطا در به‌روزرسانی پروفایل: ${errorData.details || "Unknown error"}`);
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("خطا در ارسال درخواست!");
+            toast("خطا در ارسال درخواست!");
         }
     };
 

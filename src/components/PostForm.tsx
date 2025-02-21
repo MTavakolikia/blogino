@@ -5,6 +5,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import axios from "axios";
+import { toast } from "sonner"
 
 const createPostSchema = z.object({
   title: z.string().min(1, "عنوان الزامی است"),
@@ -34,7 +35,7 @@ export default function CreatePostForm() {
         ...data,
         authorId: "cm71tucbh0000vwbwbtt1svj5",
       });
-      alert("پست با موفقیت ایجاد شد!");
+      toast("پست با موفقیت ایجاد شد!");
     } catch (err: any) {
       if (err.response && err.response.data) {
         setError(err.response.data.error || "خطایی رخ داد.");

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { supabase } from "@/lib/supabase";
+import { toast } from "sonner"
 
 interface ProfileImageUploadProps {
     userId: string;
@@ -42,7 +43,7 @@ export default function ProfileImageUploadForm({ userId }: ProfileImageUploadPro
 
             await axios.patch(`/api/users/${userId}`, { profilePic: publicURL });
 
-            alert("تصویر پروفایل با موفقیت آپلود شد!");
+            toast("تصویر پروفایل با موفقیت آپلود شد!");
         } catch (err: any) {
             setError(err.message || "خطایی رخ داد.");
         } finally {
