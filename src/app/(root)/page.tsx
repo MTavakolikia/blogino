@@ -1,4 +1,5 @@
 import PostCard from "@/components/posts/PostCard";
+import NewsByCategory from "@/components/template";
 
 export default function Home() {
   return (
@@ -13,7 +14,10 @@ export default function Home() {
         <PostCard />
         <PostCard />
         <PostCard />
-        <PostCard />
+
+      </div>
+      <div>
+        <NewsByCategory />
       </div>
     </div>
   );

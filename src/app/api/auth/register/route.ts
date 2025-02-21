@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/utils/prisma";
-import bcrypt from "bcrypt";
+import { hashPassword } from "@/utils/auth";
 
 export async function POST(request: Request) {
     try {
@@ -16,9 +16,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const existingUser = await prisma.user.findUnique({
-            where: { email },
-        });
+        const existingUser = await prisma.user.findUnique({ where: { email } });
 
         if (existingUser) {
             return NextResponse.json(
@@ -30,8 +28,10 @@ export async function POST(request: Request) {
             );
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // هش کردن پسورد
+        const hashedPassword = await hashPassword(password);
 
+        // ایجاد کاربر جدید
         const user = await prisma.user.create({
             data: {
                 firstName,
@@ -42,6 +42,7 @@ export async function POST(request: Request) {
             },
         });
 
+        // حذف فیلد پسورد از خروجی
         const { password: _, ...userWithoutPassword } = user;
 
         return NextResponse.json(userWithoutPassword, { status: 201 });
