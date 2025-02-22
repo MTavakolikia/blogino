@@ -38,12 +38,10 @@ export default function RegisterForm() {
             router.push("/login");
 
         } catch (err: unknown) {
-
-
-            if (err.response && err.response.data) {
-                setError(err.response.data.error || "An error occurred.");
+            if (axios.isAxiosError(err)) {
+                toast(err.response?.data?.error || "error occurred.");
             } else {
-                setError("An error occurred, please try again.");
+                toast("An unexpected error occurred.");
             }
         } finally {
             setLoading(false);

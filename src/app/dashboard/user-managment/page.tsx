@@ -5,7 +5,6 @@ import { Mail, User, Calendar, Shield } from "lucide-react";
 
 export default async function UserManagement() {
     try {
-        // دریافت لیست کاربران از پایگاه داده
         const users = await prisma.user.findMany();
 
         return (
@@ -22,7 +21,6 @@ export default async function UserManagement() {
                         {users.map((user) => (
                             <Card key={user.id} className="shadow-md hover:shadow-lg transition border border-gray-200 dark:border-gray-700">
                                 <CardHeader className="flex flex-row items-center gap-4">
-                                    {/* آواتار کاربر */}
                                     <Avatar className="w-14 h-14">
                                         <AvatarImage src={user.profilePic || "/profile.png"} alt={user.firstName} />
                                         <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
@@ -36,12 +34,10 @@ export default async function UserManagement() {
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    {/* ایمیل کاربر */}
                                     <p className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                                         <Mail className="w-5 h-5 text-blue-500" />
                                         {user.email}
                                     </p>
-                                    {/* تاریخ عضویت */}
                                     <p className="flex items-center gap-2 text-gray-600 dark:text-gray-300 mt-2">
                                         <Calendar className="w-5 h-5 text-green-500" />
                                         Joined: {new Date(user.createdAt).toLocaleDateString()}
@@ -54,6 +50,8 @@ export default async function UserManagement() {
             </div>
         );
     } catch (error) {
+        console.log(error);
+
         return <p className="text-red-500 text-center">Error fetching users!</p>;
     }
 }

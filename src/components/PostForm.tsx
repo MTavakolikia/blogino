@@ -6,10 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner"
+import useUserStore from "@/store/userStore";
 
 const createPostSchema = z.object({
-  title: z.string().min(1, "عنوان الزامی است"),
-  content: z.string().min(1, "محتوا الزامی است"),
+  title: z.string().min(1, "Title required!"),
+  content: z.string().min(1, "Content required!"),
 });
 
 type CreatePostFormData = z.infer<typeof createPostSchema>;
@@ -17,6 +18,7 @@ type CreatePostFormData = z.infer<typeof createPostSchema>;
 export default function CreatePostForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useUserStore();
 
   const {
     register,
@@ -31,16 +33,16 @@ export default function CreatePostForm() {
     setError(null);
 
     try {
-      const response = await axios.post("/api/posts", {
+      await axios.post("/api/posts", {
         ...data,
-        authorId: "cm71tucbh0000vwbwbtt1svj5",
+        authorId: user?.id,
       });
-      toast("پست با موفقیت ایجاد شد!");
-    } catch (err: any) {
-      if (err.response && err.response.data) {
-        setError(err.response.data.error || "خطایی رخ داد.");
+      toast("Post created successfully!");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        toast(err.response?.data?.error || "error occurred.");
       } else {
-        setError("خطایی رخ داد، لطفاً دوباره امتحان کنید.");
+        toast("An unexpected error occurred.");
       }
     } finally {
       setLoading(false);
@@ -49,11 +51,11 @@ export default function CreatePostForm() {
 
   return (
     <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
-      <h1 className="text-2xl font-bold mb-6 text-center">ایجاد پست</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">Create Post</h1>
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">عنوان:</label>
+          <label className="block text-sm font-medium text-gray-700">Title:</label>
           <input
             {...register("title")}
             type="text"
@@ -65,7 +67,7 @@ export default function CreatePostForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">محتوا:</label>
+          <label className="block text-sm font-medium text-gray-700">Content:</label>
           <textarea
             {...register("content")}
             rows={4}
@@ -81,7 +83,7 @@ export default function CreatePostForm() {
           disabled={loading}
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          {loading ? "در حال ایجاد..." : "ایجاد پست"}
+          {loading ? "Creating Post" : "Create Post"}
         </button>
       </form>
     </div>

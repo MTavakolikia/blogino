@@ -1,19 +1,27 @@
 "use client"
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
+// import PostCard from "./posts/PostCard";
 
 export default function PostList() {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchPosts = async () => {
             try {
                 const response = await axios.get("/api/posts");
                 setPosts(response.data);
-            } catch (err: any) {
-                setError(err.response?.data?.error || "خطایی رخ داد.");
+                console.log(response.data);
+
+            } catch (err: unknown) {
+
+                if (axios.isAxiosError(err)) {
+                    toast(err.response?.data?.error || "error occurred.");
+                } else {
+                    toast("An unexpected error occurred.");
+                }
             } finally {
                 setLoading(false);
             }
@@ -22,21 +30,18 @@ export default function PostList() {
         fetchPosts();
     }, []);
 
-    if (loading) return <p>در حال بارگذاری...</p>;
-    if (error) return <p>{error}</p>;
+    if (loading) return <p>Loading...</p>;
 
     return (
         <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
             <h1 className="text-2xl font-bold mb-6 text-center">آخرین پست‌ها</h1>
-            <ul className="space-y-4">
-                {posts.map((post) => (
-                    <li key={post.id} className="bg-gray-100 p-4 rounded-md shadow-sm">
-                        <h2 className="text-xl font-semibold">{post.title}</h2>
-                        <p className="text-sm text-gray-500">نویسنده: {post.author.firstName} {post.author.lastName}</p>
-                        <p className="text-gray-700">{post.content.substring(0, 100)}...</p>
-                    </li>
-                ))}
-            </ul>
+            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* {posts && posts.length > 0 ? (
+                    posts.map(post => post ? <PostCard key={post.id} postDetail={post} /> : null)
+                ) : (
+                    <p className="text-center text-gray-500 col-span-full">No posts available.</p>
+                )} */}
+            </section>
         </div>
     );
 }
