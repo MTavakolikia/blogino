@@ -1,45 +1,65 @@
 import { prisma } from "@/utils/prisma";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const { id } = req.query;
+export async function PATCH(request: Request) {
+    try {
+        const { id, name } = await request.json();
 
-    if (req.method === "GET") {
-        try {
-            const category = await prisma.category.findUnique({
-                where: { id: String(id) },
-                include: { posts: true },
-            });
-
-            if (!category) return res.status(404).json({ error: "دسته‌بندی یافت نشد" });
-            return res.status(200).json(category);
-        } catch (error) {
-            return res.status(500).json({ error: "خطا در دریافت اطلاعات دسته‌بندی" });
+        if (!id || !name) {
+            return NextResponse.json({ error: "ID and name are required" }, { status: 400 });
         }
+
+        const category = await prisma.category.update({
+            where: { id },
+            data: { name },
+        });
+
+        return NextResponse.json(category, { status: 200 });
+    } catch (error) {
+        console.error("Error updating category:", error);
+        return NextResponse.json({ error: "Failed to update category" }, { status: 500 });
     }
+}
 
-    if (req.method === "PUT") {
-        try {
-            const { name } = req.body;
-            const updatedCategory = await prisma.category.update({
-                where: { id: String(id) },
-                data: { name },
-            });
+export async function DELETE(request: Request) {
+    try {
+        const { id } = await request.json();
 
-            return res.status(200).json(updatedCategory);
-        } catch (error) {
-            return res.status(500).json({ error: "خطا در به‌روزرسانی دسته‌بندی" });
+        if (!id) {
+            return NextResponse.json({ error: "Category ID is required" }, { status: 400 });
         }
-    }
 
-    if (req.method === "DELETE") {
-        try {
-            await prisma.category.delete({ where: { id: String(id) } });
-            return res.status(200).json({ message: "دسته‌بندی حذف شد" });
-        } catch (error) {
-            return res.status(500).json({ error: "خطا در حذف دسته‌بندی" });
+        await prisma.category.delete({ where: { id } });
+
+        return NextResponse.json({ message: "Category deleted successfully" }, { status: 200 });
+    } catch (error) {
+        console.error("Error deleting category:", error);
+        return NextResponse.json({ error: "Failed to delete category" }, { status: 500 });
+    }
+}
+
+
+
+
+export async function GET(request: Request) {
+    try {
+        const { id } = await request.json();
+
+        if (!id) {
+            return NextResponse.json({ error: "Category ID is required" }, { status: 400 });
         }
-    }
 
-    return res.status(405).json({ error: "متد نامعتبر است" });
+        const category = await prisma.category.findUnique({
+            where: { id },
+        });
+
+        if (!category) {
+            return NextResponse.json({ error: "Category not found" }, { status: 404 });
+        }
+
+        return NextResponse.json(category, { status: 200 });
+    } catch (error) {
+        console.error("Error fetching category by ID:", error);
+        return NextResponse.json({ error: "Failed to fetch category" }, { status: 500 });
+    }
 }

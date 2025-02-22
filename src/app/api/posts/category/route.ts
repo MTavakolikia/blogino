@@ -1,31 +1,32 @@
 import { prisma } from "@/utils/prisma";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === "GET") {
-        try {
-            const categories = await prisma.category.findMany({
-                include: { posts: true },
-            });
-            return res.status(200).json(categories);
-        } catch (error) {
-            return res.status(500).json({ error: "خطا در دریافت دسته‌بندی‌ها" });
+export async function POST(request: Request) {
+    try {
+        const { name } = await request.json();
+
+        if (!name) {
+            return NextResponse.json({ error: "Category name is required" }, { status: 400 });
         }
+
+        const category = await prisma.category.create({
+            data: { name },
+        });
+
+        return NextResponse.json(category, { status: 201 });
+    } catch (error) {
+        console.error("Error creating category:", error);
+        return NextResponse.json({ error: "Failed to create category" }, { status: 500 });
     }
+}
 
-    if (req.method === "POST") {
-        try {
-            const { name } = req.body;
-            if (!name) return res.status(400).json({ error: "نام دسته‌بندی الزامی است" });
-
-            const category = await prisma.category.create({
-                data: { name },
-            });
-            return res.status(201).json(category);
-        } catch (error) {
-            return res.status(500).json({ error: "خطا در ایجاد دسته‌بندی" });
-        }
+// Get all categories
+export async function GET() {
+    try {
+        const categories = await prisma.category.findMany();
+        return NextResponse.json(categories, { status: 200 });
+    } catch (error) {
+        console.error("Error fetching categories:", error);
+        return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
     }
-
-    return res.status(405).json({ error: "متد نامعتبر است" });
 }
