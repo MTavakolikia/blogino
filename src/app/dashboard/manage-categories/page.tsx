@@ -1,144 +1,138 @@
-"use client"
+"use client";
+
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import axios from "axios";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
+const categorySchema = z.object({
+    name: z.string().min(1, "Category name is required!"),
+});
+
+type CategoryFormData = z.infer<typeof categorySchema>;
+
+type Category = {
+    id: string;
+    name: string;
+};
 
 export default function ManageCategories() {
-    const [categories, setCategories] = useState([]);
-    const [newCategory, setNewCategory] = useState("");
-    const [editCategory, setEditCategory] = useState<{ id: string; name: string } | null>(null);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [editCategory, setEditCategory] = useState<Category | null>(null);
+
+    const {
+        register,
+        handleSubmit,
+        reset,
+        setValue,
+        formState: { errors },
+    } = useForm<CategoryFormData>({
+        resolver: zodResolver(categorySchema),
+    });
 
     useEffect(() => {
         fetchCategories();
     }, []);
 
-    // دریافت لیست دسته‌بندی‌ها از API
     const fetchCategories = async () => {
         try {
             const res = await axios.get("/api/posts/category");
             setCategories(res.data);
         } catch (error) {
-            console.error("خطا در دریافت دسته‌بندی‌ها:", error);
+            toast("Failed to fetch categories.");
         }
     };
 
-    // ارسال دسته‌بندی جدید به سرور
-    const handleAddCategory = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newCategory) return;
-
+    const onSubmit = async (data: CategoryFormData) => {
+        setLoading(true);
         try {
-            await axios.post("/api/posts/category", { name: newCategory });
-            setNewCategory("");
-            fetchCategories(); // بروزرسانی لیست دسته‌بندی‌ها
-        } catch (error) {
-            console.error("خطا در افزودن دسته‌بندی:", error);
-        }
-    };
-
-    // ارسال تغییرات به سرور برای ویرایش دسته‌بندی
-    const handleEditCategory = async () => {
-        if (!editCategory?.name) return;
-
-        try {
-            await axios.put(`/api/posts/category/${editCategory.id}`, { name: editCategory.name });
-            setEditCategory(null); // بستن فرم ویرایش
+            if (editCategory) {
+                await axios.put(`/api/posts/category/${editCategory.id}`, { name: data.name, id: editCategory.id });
+                toast("Category updated successfully!");
+            } else {
+                await axios.post("/api/posts/category", data);
+                toast("Category added successfully!");
+            }
+            reset();
+            setEditCategory(null);
             fetchCategories();
         } catch (error) {
-            console.error("خطا در ویرایش دسته‌بندی:", error);
+            toast("Error while saving category.");
+        } finally {
+            setLoading(false);
         }
     };
 
-    // حذف دسته‌بندی
-    const handleDeleteCategory = async (id: string) => {
-        if (confirm("آیا مطمئن هستید؟ این عملیات غیرقابل برگشت است.")) {
-            try {
-                await axios.delete(`/api/posts/category/${id}`);
-                fetchCategories(); // بروزرسانی لیست دسته‌بندی‌ها
-            } catch (error) {
-                console.error("خطا در حذف دسته‌بندی:", error);
-            }
+    const handleDelete = async (id: string) => {
+        try {
+            await axios.delete(`/api/posts/category/${id}`);
+            toast("Category deleted successfully!");
+            fetchCategories();
+        } catch (error) {
+            toast("Error deleting category.");
         }
     };
 
     return (
-        <div className="container mx-auto px-6 py-8">
-            <h1 className="text-3xl font-bold mb-6">مدیریت دسته‌بندی‌ها</h1>
-
-
-
-            {/* فرم افزودن دسته‌بندی جدید */}
-            <form onSubmit={handleAddCategory} className="mb-6">
-                <input
-                    type="text"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    placeholder="دسته‌بندی جدید"
-                    className="border p-2 rounded-md w-64 mr-4"
-                />
-                <button type="submit" className="bg-blue-500 text-white p-2 rounded-md">افزودن</button>
+        <div className="max-w-2xl mx-auto p-8">
+            <h1 className="text-2xl font-bold mb-6 text-center">Manage Categories</h1>
+            <form onSubmit={handleSubmit(onSubmit)} className="mb-6 flex gap-4">
+                <Input {...register("name")} placeholder="Category Name" />
+                <Button type="submit" disabled={loading}>{editCategory ? "Update" : "Add"}</Button>
             </form>
+            {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {categories.map((category) => (
+                    <Card key={category.id}>
+                        <CardHeader>
+                            <CardTitle>Category Name: <span className="text-cyan-500">{category.name}</span></CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex justify-between">
+                            <Button size="sm" variant="outline" onClick={() => { setEditCategory(category); setValue("name", category.name) }}>Edit</Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger>
+                                    <Button size="sm" variant="destructive" >Delete</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete your account
+                                            and remove your data from our servers.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction className="bg-red-800 hover:bg-red-900" onClick={() => handleDelete(category.id)}>
+                                            Delete
 
-            {/* لیست دسته‌بندی‌ها */}
-            <table className="min-w-full bg-white shadow-md rounded-md">
-                <thead>
-                    <tr>
-                        <th className="py-3 px-6 border-b text-left">نام دسته‌بندی</th>
-                        <th className="py-3 px-6 border-b text-center">عملیات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {categories.length === 0 ? (
-                        <tr>
-                            <td colSpan={2} className="text-center py-4 text-gray-500">هیچ دسته‌بندی‌ای وجود ندارد</td>
-                        </tr>
-                    ) : (
-                        categories.map((category) => (
-                            <tr key={category.id}>
-                                <td className="py-3 px-6 border-b">{category.name}</td>
-                                <td className="py-3 px-6 border-b text-center">
-                                    <button
-                                        onClick={() => setEditCategory({ id: category.id, name: category.name })}
-                                        className="text-yellow-500 hover:text-yellow-700 mr-2"
-                                    >
-                                        ویرایش
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeleteCategory(category.id)}
-                                        className="text-red-500 hover:text-red-700"
-                                    >
-                                        حذف
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
 
-            {/* فرم ویرایش دسته‌بندی */}
-            {editCategory && (
-                <div className="mt-6 p-4 bg-gray-100 rounded-md">
-                    <h2 className="text-xl font-semibold mb-4">ویرایش دسته‌بندی</h2>
-                    <input
-                        type="text"
-                        value={editCategory.name}
-                        onChange={(e) => setEditCategory({ ...editCategory, name: e.target.value })}
-                        className="border p-2 rounded-md w-64"
-                    />
-                    <button
-                        onClick={handleEditCategory}
-                        className="bg-green-500 text-white p-2 rounded-md ml-4"
-                    >
-                        ذخیره تغییرات
-                    </button>
-                    <button
-                        onClick={() => setEditCategory(null)}
-                        className="bg-gray-500 text-white p-2 rounded-md ml-4"
-                    >
-                        انصراف
-                    </button>
-                </div>
-            )}
+
         </div>
     );
 }

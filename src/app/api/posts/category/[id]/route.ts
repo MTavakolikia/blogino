@@ -1,7 +1,7 @@
 import { prisma } from "@/utils/prisma";
 import { NextResponse } from "next/server";
 
-export async function PATCH(request: Request) {
+export async function PUT(request: Request) {
     try {
         const { id, name } = await request.json();
 
@@ -23,7 +23,8 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
     try {
-        const { id } = await request.json();
+        const url = new URL(request.url);
+        const id = url.pathname.split("/").pop();
 
         if (!id) {
             return NextResponse.json({ error: "Category ID is required" }, { status: 400 });
@@ -37,6 +38,7 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ error: "Failed to delete category" }, { status: 500 });
     }
 }
+
 
 
 

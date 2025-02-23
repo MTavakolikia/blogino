@@ -1,21 +1,24 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "sonner";
-import useUserStore from "@/store/userStore";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+import useUserStore from "@/store/userStore";
+import { toast } from "sonner";
+
 const createPostSchema = z.object({
-  title: z.string().min(1, "Title required!"),
-  content: z.string().min(1, "Content required!"),
-  categoryId: z.string().min(1, "Category required!"),
+  title: z.string().min(1, "Title is required!"),
+  content: z.string().min(1, "Content is required!"),
+  categoryId: z.string().min(1, "Please select a category!"),
 });
 
 type CreatePostFormData = z.infer<typeof createPostSchema>;
@@ -26,9 +29,8 @@ type Category = {
 };
 
 export default function CreatePostForm() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(false);
   const { user } = useUserStore();
 
   useEffect(() => {
@@ -43,30 +45,18 @@ export default function CreatePostForm() {
     fetchCategories();
   }, []);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CreatePostFormData>({
+  const form = useForm<CreatePostFormData>({
     resolver: zodResolver(createPostSchema),
   });
 
   const onSubmit = async (data: CreatePostFormData) => {
     setLoading(true);
-    setError(null);
-
     try {
-      await axios.post("/api/posts", {
-        ...data,
-        authorId: user?.id,
-      });
+      await axios.post("/api/posts", { ...data, authorId: user?.id });
       toast("Post created successfully!");
+      form.reset();
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        toast(err.response?.data?.error || "Error occurred.");
-      } else {
-        toast("An unexpected error occurred.");
-      }
+      toast("Failed to create post.");
     } finally {
       setLoading(false);
     }
@@ -75,47 +65,70 @@ export default function CreatePostForm() {
   return (
     <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
       <h1 className="text-2xl font-bold mb-6 text-center">Create Post</h1>
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Title:</label>
-          <Input {...register("title")} />
-          {errors.title && (
-            <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
-          )}
-        </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Title */}
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter title" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Content:</label>
-          <Textarea {...register("content")} rows={4} />
-          {errors.content && (
-            <p className="text-red-500 text-sm mt-1">{errors.content.message}</p>
-          )}
-        </div>
+          {/* Content */}
+          <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Content</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Write something..." {...field} rows={4} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Category:</label>
-          <Select onValueChange={(value) => register("categoryId").onChange({ target: { value } })}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.categoryId && (
-            <p className="text-red-500 text-sm mt-1">{errors.categoryId.message}</p>
-          )}
-        </div>
+          {/* Category Selection */}
+          <FormField
+            control={form.control}
+            name="categoryId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? "Creating Post" : "Create Post"}
-        </Button>
-      </form>
+          {/* Submit Button */}
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? "Creating..." : "Create Post"}
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }
