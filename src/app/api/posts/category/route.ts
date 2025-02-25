@@ -21,25 +21,43 @@ export async function POST(request: Request) {
 }
 
 
-export async function GET(request: Request) {
+// export async function GET(request: Request) {
+//     try {
+//         const { id } = await request.json();
+
+//         if (!id) {
+//             return NextResponse.json({ error: "Category ID is required" }, { status: 400 });
+//         }
+
+//         const category = await prisma.category.findUnique({
+//             where: { id },
+//         });
+
+//         if (!category) {
+//             return NextResponse.json({ error: "Category not found" }, { status: 404 });
+//         }
+
+//         return NextResponse.json(category, { status: 200 });
+//     } catch (error) {
+//         console.error("Error fetching category by ID:", error);
+//         return NextResponse.json({ error: "Failed to fetch category" }, { status: 500 });
+//     }
+// }
+
+
+export async function GET() {
     try {
-        const { id } = await request.json();
-
-        if (!id) {
-            return NextResponse.json({ error: "Category ID is required" }, { status: 400 });
-        }
-
-        const category = await prisma.category.findUnique({
-            where: { id },
-        });
-
-        if (!category) {
-            return NextResponse.json({ error: "Category not found" }, { status: 404 });
-        }
+        const category = await prisma.category.findMany();
 
         return NextResponse.json(category, { status: 200 });
     } catch (error) {
-        console.error("Error fetching category by ID:", error);
-        return NextResponse.json({ error: "Failed to fetch category" }, { status: 500 });
+        console.error("Error fetching category:", error);
+        return NextResponse.json(
+            {
+                error: "Failed to fetch category",
+                details: error instanceof Error ? error.message : "Unknown error",
+            },
+            { status: 500 }
+        );
     }
 }

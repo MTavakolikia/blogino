@@ -94,7 +94,7 @@ export async function GET(
     { params }: { params: { id: string } }
 ) {
     try {
-        const { id } = params; // Extracting ID from URL
+        const { id } = await params;
 
         if (!id) {
             return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
@@ -102,6 +102,10 @@ export async function GET(
 
         const post = await prisma.post.findUnique({
             where: { id },
+            include: {
+                category: { select: { name: true } },
+                author: { select: { firstName: true, lastName: true } }
+            },
         });
 
         if (!post) {
@@ -114,3 +118,4 @@ export async function GET(
         return NextResponse.json({ error: "Failed to fetch post" }, { status: 500 });
     }
 }
+
