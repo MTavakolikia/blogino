@@ -61,7 +61,6 @@ export default function NewsByCategory() {
 
     return (
         <div className="container mx-auto px-6 py-8">
-            <h2 className="text-2xl font-bold text-center mb-6 dark:text-white">Latest News</h2>
 
             <Tabs defaultValue="All" className="mb-6">
                 <TabsList className="flex justify-center space-x-4 bg-gray-200 dark:bg-gray-800 p-2 rounded-lg">
