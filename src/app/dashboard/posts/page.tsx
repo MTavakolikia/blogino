@@ -1,9 +1,8 @@
-import CreatePostForm from "@/components/PostForm"
 
 function page() {
     return (
         <div>
-            <CreatePostForm />
+            my post
         </div>
     )
 }

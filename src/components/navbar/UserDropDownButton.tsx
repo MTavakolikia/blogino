@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import useUserStore from "@/store/userStore"
+import routes from "@/config/routes"
 
 export function UserDropDownButton() {
     const { user, clearUser } = useUserStore();
@@ -35,13 +36,13 @@ export function UserDropDownButton() {
                             <DropdownMenuSeparator />
                             <DropdownMenuGroup>
                                 <DropdownMenuItem>
-                                    <Link href={"/dashboard/profile"} className="flex items-center gap-2">
+                                    <Link href={routes.profile} className="flex items-center gap-2">
                                         <UserRoundCog size={18} />
                                         Profile
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
-                                    <Link href={"/dashboard/settings"} className="flex items-center gap-2">
+                                    <Link href={routes.settings} className="flex items-center gap-2">
                                         <Cog size={18} />
 
                                         Settings
@@ -50,31 +51,31 @@ export function UserDropDownButton() {
                             </DropdownMenuGroup>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>
-                                <Link href={"/dashboard"} className="flex items-center gap-2">
+                                <Link href={routes.dashboard} className="flex items-center gap-2">
                                     <LayoutDashboard size={18} />
                                     Dashboard
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem>
-                                <Link href={"/dashboard/my-posts"} className="flex items-center gap-2">
+                                <Link href={routes.posts.root} className="flex items-center gap-2">
                                     <StickyNote size={18} />
                                     My Posts
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem>
-                                <Link href={"/dashboard/new-post"} className="flex items-center gap-2">
+                                <Link href={routes.posts.new} className="flex items-center gap-2">
                                     <FilePlus size={18} />
                                     Create Post
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem>
-                                <Link href={"/dashbord/saved-post"} className="flex items-center gap-2">
+                                <Link href={routes.savedPost} className="flex items-center gap-2">
                                     <BookmarkCheck size={18} />
                                     Saved Post
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem>
-                                <Link href={"/dashboard/liked-post"} className="flex items-center gap-2">
+                                <Link href={routes.likedPost} className="flex items-center gap-2">
                                     <Heart size={18} />
                                     Liked Post
                                 </Link>

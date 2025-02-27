@@ -27,7 +27,7 @@ interface Post {
 export default function HeroCarousel() {
     const [posts, setPosts] = useState<Post[]>([]);
     const plugin = useRef(
-        Autoplay({ delay: 2000, stopOnInteraction: true })
+        Autoplay({ delay: 2000, stopOnInteraction: true, stopOnFocusIn: true })
     );
 
     useEffect(() => {
@@ -52,12 +52,13 @@ export default function HeroCarousel() {
             <Carousel
                 plugins={[plugin.current]}
                 className="w-full"
-                onMouseEnter={plugin.current.stop}
-                onMouseLeave={plugin.current.reset}
+
+            // onMouseEnter={plugin.current.stop}
+            // onMouseLeave={plugin.current.play}
             >
                 <CarouselContent>
                     {posts.map((post) => (
-                        <CarouselItem key={post.id} className="w-full">
+                        <CarouselItem key={post.id} className="w-full basis-1/2">
                             <Card className="relative w-full overflow-hidden rounded-xl shadow-lg dark:bg-gray-900">
                                 {/* تصویر اصلی خبر */}
                                 <Link href={`/dashboard/posts/${post.id}`}>
