@@ -1,7 +1,8 @@
+import DashboardStats from "@/components/dashboard/DashboardStats";
 
 function DashboardPage() {
     return (
-        <div>page2</div>
+        <DashboardStats />
     )
 }
 
