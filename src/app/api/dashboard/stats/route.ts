@@ -1,44 +1,30 @@
-import { prisma } from "@/utils/prisma";
 import { NextResponse } from "next/server";
+import { prisma } from "@/utils/prisma";
 
 export async function GET() {
     try {
-        const [publishedPosts, draftPosts, categories, totalLikes, totalComments, recentPosts] =
-            await Promise.all([
-                prisma.post.count({ where: { published: true } }),
-                prisma.post.count({ where: { published: false } }),
-                prisma.category.count(),
-                prisma.post.aggregate({ _sum: { likes: true } }),
-                prisma.comment.count(),
-                prisma.post.findMany({
-                    where: { published: true },
-                    orderBy: { createdAt: "desc" },
-                    take: 5,
-                    select: { title: true, createdAt: true, likes: true },
-                }),
-            ]);
-
-        const postsByDay = await prisma.post.groupBy({
-            by: ["createdAt"],
-            _count: { id: true },
-            orderBy: { createdAt: "asc" },
-        });
-
-        const formattedPostsByDay = postsByDay.map((p) => ({
-            date: p.createdAt.toISOString().split("T")[0],
-            count: p._count.id,
-        }));
+        const totalPosts = await prisma.post.count();
+        const publishedPosts = await prisma.post.count({ where: { published: true } });
+        const draftPosts = totalPosts - publishedPosts;
+        const totalCategories = await prisma.category.count();
+        const totalUsers = await prisma.user.count();
+        const totalComments = await prisma.comment.count();
+        const totalLikes = await prisma.like.count();
 
         return NextResponse.json({
-            posts: { published: publishedPosts, drafts: draftPosts },
-            categories,
-            totalLikes: totalLikes._sum.likes || 0,
+            totalPosts,
+            publishedPosts,
+            draftPosts,
+            totalCategories,
+            totalUsers,
             totalComments,
-            recentPosts,
-            postsByDay: formattedPostsByDay,
-        });
+            totalLikes
+        }, { status: 200 });
+
     } catch (error) {
         console.error("Error fetching dashboard stats:", error);
-        return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 });
+
+        // **🔹 رفع مشکل ارسال مقدار null**
+        return NextResponse.json({ error: "Failed to fetch stats", details: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
     }
 }
