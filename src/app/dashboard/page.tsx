@@ -1,9 +1,15 @@
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import LineChartComponent from "@/components/dashboard/LineChartComponent";
 import { prisma } from "@/utils/prisma";
+import { cookies } from "next/headers";
 
-// Getting stats and user engagement data
 async function getStats() {
+    const userCookie = await cookies().get("user");
+    if (!userCookie) throw new Error("User not authenticated");
+
+    const user = JSON.parse(userCookie.value);
+    const userId = user.id;
+
     const [
         activePosts,
         inactivePosts,
@@ -13,18 +19,20 @@ async function getStats() {
         likesByMonth,
         commentsByMonth,
     ] = await Promise.all([
-        prisma.post.count({ where: { published: true } }),
-        prisma.post.count({ where: { published: false } }),
+        prisma.post.count({ where: { published: true, authorId: userId } }),
+        prisma.post.count({ where: { published: false, authorId: userId } }),
         prisma.category.count(),
-        prisma.like.count(),
-        prisma.comment.count(),
+        prisma.like.count({ where: { userId } }),
+        prisma.comment.count({ where: { userId } }),
         prisma.like.groupBy({
             by: ["createdAt"],
             _count: { id: true },
+            where: { userId },
         }),
         prisma.comment.groupBy({
             by: ["createdAt"],
             _count: { id: true },
+            where: { userId },
         }),
     ]);
 
@@ -35,15 +43,18 @@ async function getStats() {
             month,
             likes: likesByMonth.find((l) => new Date(l.createdAt).getMonth() === i)?._count.id || 0,
             comments: commentsByMonth.find((c) => new Date(c.createdAt).getMonth() === i)?._count.id || 0,
-            activePosts: activePosts,  // Adding activePosts
-            inactivePosts: inactivePosts,  // Adding inactivePosts
+            activePosts,
+            inactivePosts,
         };
     });
 
     return { activePosts, inactivePosts, categories, likes, comments, engagementData };
 }
 
+
+
 export default async function DashboardPage() {
+
     const stats = await getStats();
 
     return (

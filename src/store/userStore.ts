@@ -1,9 +1,8 @@
-"use client"
+"use client";
 
 import { User } from "@/types/user";
 import { create } from "zustand";
-
-
+import Cookies from "js-cookie";
 
 interface UserStore {
     user: User | null;
@@ -12,20 +11,25 @@ interface UserStore {
 }
 
 const useUserStore = create<UserStore>((set) => ({
-    user: typeof window !== "undefined" ? JSON.parse(sessionStorage.getItem("user") || "null") : null,
+    user: typeof window !== "undefined" ? JSON.parse(sessionStorage.getItem("user") || Cookies.get("user") || "null") : null,
+
     setUser: (user) => {
         set({ user });
+
         if (typeof window !== "undefined") {
             sessionStorage.setItem("user", JSON.stringify(user));
+            Cookies.set("user", JSON.stringify(user), { expires: 7 }); // ذخیره در کوکی برای ۷ روز
         }
     },
+
     clearUser: () => {
         set({ user: null });
+
         if (typeof window !== "undefined") {
             sessionStorage.removeItem("user");
+            Cookies.remove("user");
         }
     },
 }));
-
 
 export default useUserStore;

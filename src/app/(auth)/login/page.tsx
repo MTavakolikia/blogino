@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -6,9 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import useUserStore from "@/store/userStore";
+import Cookies from "js-cookie"; // اضافه کردن کوکی
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner"
+import { toast } from "sonner";
 
 import {
     Card,
@@ -37,6 +38,7 @@ export default function Login() {
     } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
     });
+
     const { setUser } = useUserStore();
     const router = useRouter();
 
@@ -44,6 +46,7 @@ export default function Login() {
         try {
             const res = await axios.post("/api/auth/login", data);
             setUser(res.data);
+            Cookies.set("user", JSON.stringify(res.data), { expires: 7 }); // ذخیره در کوکی برای ۷ روز
             toast("Successful Login!");
             router.push("/dashboard");
         } catch (err: unknown) {
@@ -56,13 +59,11 @@ export default function Login() {
     };
 
     return (
-
         <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
         >
-
             <Card className="bg-transparent border-none text-white">
                 <CardHeader>
                     <CardTitle className="text-2xl">Login</CardTitle>
@@ -90,7 +91,6 @@ export default function Login() {
                         <motion.div whileHover={{ scale: 1.05 }}>
                             <Button type="submit" className="w-full">Login</Button>
                         </motion.div>
-
                     </form>
                     <div className="mt-8 text-center text-sm">
                         Don&apos;t have an account?{" "}
@@ -99,13 +99,12 @@ export default function Login() {
                         </Link>
                     </div>
                     <div className="mt-4 text-center text-sm">
-                        <Link href="/" className="flex items-center justify-center gap-2 text-cyan-100" >
+                        <Link href="/" className="flex items-center justify-center gap-2 text-cyan-100">
                             <House size={16} /> Back To Blogino
                         </Link>
                     </div>
                 </CardContent>
             </Card>
         </motion.div>
-
     );
 }
