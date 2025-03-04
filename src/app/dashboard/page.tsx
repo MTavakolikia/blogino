@@ -4,7 +4,7 @@ import { prisma } from "@/utils/prisma";
 import { cookies } from "next/headers";
 
 async function getStats() {
-    const userCookie = await cookies().get("user");
+    const userCookie = cookies().get("user");
     if (!userCookie) throw new Error("User not authenticated");
 
     const user = JSON.parse(userCookie.value);

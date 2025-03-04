@@ -5,15 +5,18 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import useUserStore from "@/store/userStore";
 import { toast } from "sonner";
+import MonacoEditor from "./posts/Editor";
+
 
 const createPostSchema = z.object({
   title: z.string().min(1, "Title is required!"),
@@ -31,6 +34,7 @@ type Category = {
 export default function CreatePostForm() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const { user } = useUserStore();
 
   useEffect(() => {
@@ -40,6 +44,8 @@ export default function CreatePostForm() {
         setCategories(res.data);
       } catch (err) {
         console.error("Error fetching categories:", err);
+      } finally {
+        setIsFetching(false);
       }
     };
     fetchCategories();
@@ -53,20 +59,21 @@ export default function CreatePostForm() {
     setLoading(true);
     try {
       await axios.post("/api/posts", { ...data, authorId: user?.id });
-      toast("Post created successfully!");
+      toast.success("Post created successfully!");
       form.reset();
-    } catch (err: unknown) {
-      toast("Failed to create post.");
+    } catch (err) {
+      toast.error("Failed to create post.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
-      <h1 className="text-2xl font-bold mb-6 text-center">Create Post</h1>
+    <div className="max-w-2xl mx-auto p-6 bg-background shadow-lg rounded-lg">
+      <h1 className="text-2xl font-bold mb-6 text-center">Create a New Post</h1>
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Title */}
           <FormField
             control={form.control}
@@ -75,14 +82,13 @@ export default function CreatePostForm() {
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter title" {...field} />
+                  <Input placeholder="Enter post title" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          {/* Content */}
           <FormField
             control={form.control}
             name="content"
@@ -90,12 +96,13 @@ export default function CreatePostForm() {
               <FormItem>
                 <FormLabel>Content</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Write something..." {...field} rows={4} />
+                  <MonacoEditor value={field.value} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
 
           {/* Category Selection */}
           <FormField
@@ -110,11 +117,19 @@ export default function CreatePostForm() {
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
+                      {isFetching ? (
+                        <>
+                          <Skeleton className="h-8 w-full my-1" />
+                          <Skeleton className="h-8 w-full my-1" />
+                          <Skeleton className="h-8 w-full my-1" />
+                        </>
+                      ) : (
+                        categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </FormControl>
