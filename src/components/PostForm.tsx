@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import useUserStore from "@/store/userStore";
 import { toast } from "sonner";
-import MonacoEditor from "./posts/Editor";
+import RichTextEditor from "./posts/RichTextEditor";
 
 
 const createPostSchema = z.object({
@@ -96,7 +96,8 @@ export default function CreatePostForm() {
               <FormItem>
                 <FormLabel>Content</FormLabel>
                 <FormControl>
-                  <MonacoEditor value={field.value} onChange={field.onChange} />
+                  <RichTextEditor value={field.value} onChange={field.onChange} />
+
                 </FormControl>
                 <FormMessage />
               </FormItem>
