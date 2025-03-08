@@ -5,7 +5,6 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -19,9 +18,10 @@ import RichTextEditor from "./posts/RichTextEditor";
 
 
 const createPostSchema = z.object({
-  title: z.string().min(1, "Title is required!"),
-  content: z.string().min(1, "Content is required!"),
+  title: z.string().min(1, "Title is required!").max(100, "Title cannot exceed 100 characters"),
+  content: z.string().min(1, "Content is required!").max(10000, "Content cannot exceed 10000 characters"),
   categoryId: z.string().min(1, "Please select a category!"),
+  image: z.string().url("Please provide a valid image URL").optional(),
 });
 
 type CreatePostFormData = z.infer<typeof createPostSchema>;
@@ -62,6 +62,7 @@ export default function CreatePostForm() {
       toast.success("Post created successfully!");
       form.reset();
     } catch (err) {
+      console.error("Failed to create post:", err);
       toast.error("Failed to create post.");
     } finally {
       setLoading(false);
