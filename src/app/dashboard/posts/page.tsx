@@ -2,7 +2,8 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { prisma } from "@/utils/prisma";
 import { Button } from "@/components/ui/button";
-import { Trash2, Edit, Eye, EyeOff } from "lucide-react";
+import { Trash2, Edit, Eye, EyeOff, CheckCircle } from "lucide-react";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 async function getUserPosts() {
     const cookieStore = await cookies();
@@ -14,95 +15,100 @@ async function getUserPosts() {
     let user;
     try {
         user = JSON.parse(userCookie.value);
+
+        if (user.role === "ADMIN") {
+            return await prisma.post.findMany({
+                include: {
+                    author: {
+                        select: {
+                            firstName: true,
+                            lastName: true,
+                        },
+                    },
+                },
+                orderBy: { createdAt: "desc" },
+            });
+        }
+
+        // For authors, fetch only their posts
+        return await prisma.post.findMany({
+            where: { authorId: user.id },
+            include: {
+                author: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
+            },
+            orderBy: { createdAt: "desc" },
+        });
     } catch (error) {
+        console.error("Error fetching user posts:", error);
         throw new Error("Invalid user cookie format");
     }
-
-    const posts = await prisma.post.findMany({
-        where: { authorId: user.id },
-        orderBy: { createdAt: "desc" },
-    });
-
-    return posts;
-}
-
-// تغییر وضعیت انتشار پست
-async function togglePublishStatus(postId: string, currentStatus: boolean) {
-    "use server"; // این خط باعث می‌شود که این تابع در سرور اجرا شود.
-
-    await prisma.post.update({
-        where: { id: postId },
-        data: { published: !currentStatus },
-    });
-
-    // بعد از تغییر وضعیت، صفحه را مجدداً بارگذاری کن تا تغییرات اعمال شوند.
-    return { status: "success" };
 }
 
 export default async function PostsPage() {
     const posts = await getUserPosts();
 
     return (
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">مدیریت پست‌ها</h1>
-                <Link href="/dashboard/posts/create">
-                    <Button>پست جدید</Button>
-                </Link>
-            </div>
+        <ProtectedRoute requiredRoles={["ADMIN", "AUTHOR"]}>
+            <div className="container mx-auto px-6 py-8">
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-3xl font-bold">Posts Management</h1>
+                    <Link href="/dashboard/posts/create">
+                        <Button>Create New Post</Button>
+                    </Link>
+                </div>
 
-            {posts.length === 0 ? (
-                <p className="text-gray-500">هنوز هیچ پستی ایجاد نکرده‌اید.</p>
-            ) : (
                 <div className="grid gap-4">
                     {posts.map((post) => (
-                        <div
-                            key={post.id}
-                            className="flex justify-between items-center p-4 border rounded-lg shadow-sm hover:shadow-md transition"
-                        >
-                            <div className="flex items-center gap-4 flex-1">
-                                {/* آیکون وضعیت انتشار */}
-                                {post.published ? (
-                                    <Eye className="text-green-500 w-5 h-5" />
-                                ) : (
-                                    <EyeOff className="text-gray-500 w-5 h-5" />
-                                )}
-
-                                {/* لینک به صفحه ویرایش پست */}
-                                <Link href={`/dashboard/posts/edit/${post.id}`} className="flex-1">
-                                    <h2 className="text-lg font-semibold cursor-pointer">{post.title}</h2>
-                                    <p className="text-sm text-gray-500">
-                                        {new Date(post.createdAt).toLocaleDateString()}
+                        <div key={post.id} className="p-4 border rounded-lg bg-card">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h2 className="text-xl font-semibold">{post.title}</h2>
+                                    <p className="text-sm text-muted-foreground">
+                                        By {post.author.firstName} {post.author.lastName}
                                     </p>
-                                </Link>
-                            </div>
-
-                            <div className="flex gap-2">
-                                {/* دکمه تغییر وضعیت انتشار */}
-                                <form action={`/dashboard/posts/toggle/${post.id}`} method="POST">
+                                </div>
+                                <div className="flex gap-2">
                                     <Button variant="outline" size="icon">
-                                        {post.published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        <Link href={`/dashboard/posts/${post.id}`}>
+                                            <Eye className="h-4 w-4" />
+                                        </Link>
                                     </Button>
-                                </form>
-
-                                {/* دکمه ویرایش */}
-                                <Link href={`/dashboard/posts/edit/${post.id}`}>
                                     <Button variant="outline" size="icon">
-                                        <Edit className="w-4 h-4" />
+                                        <Link href={`/dashboard/posts/${post.id}/edit`}>
+                                            <Edit className="h-4 w-4" />
+                                        </Link>
                                     </Button>
-                                </Link>
-
-                                {/* دکمه حذف */}
-                                <form action={`/dashboard/posts/delete/${post.id}`} method="POST">
+                                    {post.published ? (
+                                        <Button variant="outline" size="icon">
+                                            <EyeOff className="h-4 w-4" />
+                                        </Button>
+                                    ) : (
+                                        <Button variant="outline" size="icon">
+                                            <CheckCircle className="h-4 w-4" />
+                                        </Button>
+                                    )}
                                     <Button variant="destructive" size="icon">
-                                        <Trash2 className="w-4 h-4" />
+                                        <Trash2 className="h-4 w-4" />
                                     </Button>
-                                </form>
+                                </div>
+                            </div>
+                            <div className="mt-2">
+                                <p className="text-sm text-muted-foreground">
+                                    Status: {post.published ? "Published" : "Draft"}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                    Created: {new Date(post.createdAt).toLocaleDateString()}
+                                </p>
                             </div>
                         </div>
                     ))}
                 </div>
-            )}
-        </div>
+            </div>
+        </ProtectedRoute>
     );
 }
