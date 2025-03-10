@@ -11,6 +11,7 @@ import {
     Map,
     PieChart,
     StickyNote,
+    Tag,
 } from "lucide-react"
 
 
@@ -86,6 +87,12 @@ const data = {
             title: "Saved Post",
             url: routes.savedPost,
             icon: BookmarkCheck,
+
+        },
+        {
+            title: "Categories",
+            url: routes.categories,
+            icon: Tag,
 
         },
         {

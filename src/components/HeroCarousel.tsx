@@ -60,7 +60,6 @@ export default function HeroCarousel() {
                     {posts.map((post) => (
                         <CarouselItem key={post.id} className="w-full basis-1/2">
                             <Card className="relative w-full overflow-hidden rounded-xl shadow-lg dark:bg-gray-900">
-                                {/* تصویر اصلی خبر */}
                                 <Link href={`/dashboard/posts/${post.id}`}>
                                     <Image
                                         className="w-full h-[400px] object-cover"
@@ -71,8 +70,6 @@ export default function HeroCarousel() {
                                         priority
                                     />
                                 </Link>
-
-                                {/* اطلاعات خبر */}
                                 <CardContent className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-white">
                                     <span className="text-sm font-semibold bg-blue-500 px-3 py-1 rounded-full">
                                         {post.category.name}
@@ -91,8 +88,6 @@ export default function HeroCarousel() {
                         </CarouselItem>
                     ))}
                 </CarouselContent>
-
-                {/* دکمه‌های کنترل اسلایدر */}
                 <CarouselPrevious />
                 <CarouselNext />
             </Carousel>
