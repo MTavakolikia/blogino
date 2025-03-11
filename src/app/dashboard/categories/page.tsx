@@ -2,8 +2,8 @@ import { prisma } from "@/utils/prisma";
 import { Button } from "@/components/ui/button";
 import { Plus, Tag } from "lucide-react";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import CreateCategoryDialog from "./CreateCategoryDialog";
 import CategoryList from "./CategoryList";
+import CreateCategoryDialog from "./CreateCategoryDialog";
 
 async function getCategories() {
     try {
@@ -32,12 +32,12 @@ export default async function CategoriesPage() {
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold flex items-center gap-2">
                         <Tag className="w-8 h-8 text-primary" />
-                        Categories
+                        مدیریت دسته‌بندی‌ها
                     </h1>
                     <CreateCategoryDialog>
                         <Button>
-                            <Plus className="w-4 h-4 mr-2" />
-                            Add Category
+                            <Plus className="w-4 h-4 ml-2" />
+                            افزودن دسته‌بندی
                         </Button>
                     </CreateCategoryDialog>
                 </div>
@@ -46,4 +46,4 @@ export default async function CategoriesPage() {
             </div>
         </ProtectedRoute>
     );
-} 
+}

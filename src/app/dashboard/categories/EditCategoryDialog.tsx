@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import axios from "axios";
 
 const categorySchema = z.object({
-    name: z.string().min(1, "Category name is required").max(50, "Category name cannot exceed 50 characters"),
+    name: z.string().min(1, "نام دسته‌بندی الزامی است").max(50, "نام دسته‌بندی نمی‌تواند بیشتر از 50 کاراکتر باشد"),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -66,13 +66,14 @@ export default function EditCategoryDialog({
     const onSubmit = async (data: CategoryFormData) => {
         try {
             setLoading(true);
-            const response = await axios.patch(`/api/categories/${category.id}`, data);
+
+            const response = await axios.patch(`/api/posts/category/${category.id}}`, data);
             onUpdate(response.data);
-            toast.success("Category updated successfully");
+            toast.success("دسته‌بندی با موفقیت ویرایش شد");
             onClose();
         } catch (error) {
             console.error("Failed to update category:", error);
-            toast.error("Failed to update category");
+            toast.error("خطا در ویرایش دسته‌بندی");
         } finally {
             setLoading(false);
         }
@@ -82,7 +83,7 @@ export default function EditCategoryDialog({
         <Dialog open onOpenChange={onClose}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Edit Category</DialogTitle>
+                    <DialogTitle>ویرایش دسته‌بندی</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -91,9 +92,9 @@ export default function EditCategoryDialog({
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Category Name</FormLabel>
+                                    <FormLabel>نام دسته‌بندی</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter category name" {...field} />
+                                        <Input placeholder="نام دسته‌بندی را وارد کنید" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -105,10 +106,10 @@ export default function EditCategoryDialog({
                                 variant="outline"
                                 onClick={onClose}
                             >
-                                Cancel
+                                انصراف
                             </Button>
                             <Button type="submit" disabled={loading}>
-                                {loading ? "Updating..." : "Update Category"}
+                                {loading ? "در حال ویرایش..." : "ویرایش دسته‌بندی"}
                             </Button>
                         </div>
                     </form>
@@ -116,4 +117,4 @@ export default function EditCategoryDialog({
             </DialogContent>
         </Dialog>
     );
-} 
+}

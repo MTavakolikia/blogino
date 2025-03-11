@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import axios from "axios";
 
 const categorySchema = z.object({
-    name: z.string().min(1, "Category name is required").max(50, "Category name cannot exceed 50 characters"),
+    name: z.string().min(1, "نام دسته‌بندی الزامی است").max(50, "نام دسته‌بندی نمی‌تواند بیشتر از 50 کاراکتر باشد"),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -45,13 +45,15 @@ export default function CreateCategoryDialog({ children }: CreateCategoryDialogP
     const onSubmit = async (data: CategoryFormData) => {
         try {
             setLoading(true);
-            await axios.post("/api/categories", data);
-            toast.success("Category created successfully");
+            await axios.post("/api/posts/category", data);
+            toast.success("دسته‌بندی با موفقیت ایجاد شد");
             form.reset();
             setOpen(false);
+            // Reload the page to refresh the categories list
+            window.location.reload();
         } catch (error) {
             console.error("Failed to create category:", error);
-            toast.error("Failed to create category");
+            toast.error("خطا در ایجاد دسته‌بندی");
         } finally {
             setLoading(false);
         }
@@ -62,7 +64,7 @@ export default function CreateCategoryDialog({ children }: CreateCategoryDialogP
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Create New Category</DialogTitle>
+                    <DialogTitle>ایجاد دسته‌بندی جدید</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -71,9 +73,9 @@ export default function CreateCategoryDialog({ children }: CreateCategoryDialogP
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Category Name</FormLabel>
+                                    <FormLabel>نام دسته‌بندی</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter category name" {...field} />
+                                        <Input placeholder="نام دسته‌بندی را وارد کنید" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -85,10 +87,10 @@ export default function CreateCategoryDialog({ children }: CreateCategoryDialogP
                                 variant="outline"
                                 onClick={() => setOpen(false)}
                             >
-                                Cancel
+                                انصراف
                             </Button>
                             <Button type="submit" disabled={loading}>
-                                {loading ? "Creating..." : "Create Category"}
+                                {loading ? "در حال ایجاد..." : "ایجاد دسته‌بندی"}
                             </Button>
                         </div>
                     </form>
@@ -96,4 +98,4 @@ export default function CreateCategoryDialog({ children }: CreateCategoryDialogP
             </DialogContent>
         </Dialog>
     );
-} 
+}

@@ -33,7 +33,7 @@ export default function CategoryList({ categories: initialCategories }: Category
 
     const handleDelete = async (id: string) => {
         try {
-            await axios.delete(`/api/categories/${id}`);
+            await axios.delete(`/api/posts/category/${id}`);
             setCategories(categories.filter(cat => cat.id !== id));
             toast.success("Category deleted successfully");
         } catch (error) {
