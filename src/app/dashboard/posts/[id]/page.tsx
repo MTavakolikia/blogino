@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
+import PostContent from "@/components/posts/PostContent";
 
 interface Post {
     id: string;
@@ -76,7 +77,9 @@ export default function PostPage() {
                     </p>
                 </CardHeader>
                 <CardContent className="p-6">
-                    <p className="text-lg text-gray-700 leading-relaxed">{post.content}</p>
+                    <div className="prose max-w-none">
+                        <PostContent content={post.content} />
+                    </div>
                     <p className="mt-4 text-gray-600 font-semibold">
                         نویسنده: {post.author.firstName} {post.author.lastName}
                     </p>

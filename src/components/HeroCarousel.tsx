@@ -14,6 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 import axios from "axios";
 import { format } from "date-fns";
+import PostExcerpt from "@/components/posts/PostExcerpt";
 
 interface Post {
     id: string;
@@ -34,6 +35,8 @@ export default function HeroCarousel() {
         const fetchPosts = async () => {
             try {
                 const response = await axios.get("/api/posts");
+                console.log(response.data);
+
                 setPosts(response.data.slice(0, 5));
             } catch (error) {
                 console.error("Error fetching featured posts:", error);
@@ -72,14 +75,16 @@ export default function HeroCarousel() {
                                 </Link>
                                 <CardContent className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-white">
                                     <span className="text-sm font-semibold bg-blue-500 px-3 py-1 rounded-full">
-                                        {post.category.name}
+                                        {post.category?.name}
                                     </span>
 
                                     <Link href={`/dashboard/posts/${post.id}`}>
                                         <h2 className="mt-2 text-2xl font-bold hover:underline">{post.title}</h2>
                                     </Link>
 
-                                    <p className="mt-1 text-sm line-clamp-2">{post.content}</p>
+                                    <div className="mt-1 text-sm line-clamp-2 text-white">
+                                        <PostExcerpt content={post.content} />
+                                    </div>
                                     <span className="block mt-2 text-sm text-gray-300">
                                         {format(new Date(post.createdAt), "dd MMM yyyy")}
                                     </span>
