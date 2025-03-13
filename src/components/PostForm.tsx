@@ -127,8 +127,8 @@ export default function CreatePostForm() {
                         </>
                       ) : (
                         categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
+                          <SelectItem key={category?.id} value={category?.id}>
+                            {category?.name}
                           </SelectItem>
                         ))
                       )}

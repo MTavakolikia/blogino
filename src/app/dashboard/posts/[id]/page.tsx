@@ -73,7 +73,7 @@ export default function PostPage() {
                 <CardHeader className="p-6">
                     <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
                     <p className="text-sm text-gray-500 mt-1">
-                        {new Date(post.createdAt).toLocaleDateString()} | {post.category.name}
+                        {new Date(post.createdAt).toLocaleDateString()} | {post.category?.name}
                     </p>
                 </CardHeader>
                 <CardContent className="p-6">
@@ -81,7 +81,7 @@ export default function PostPage() {
                         <PostContent content={post.content} />
                     </div>
                     <p className="mt-4 text-gray-600 font-semibold">
-                        نویسنده: {post.author.firstName} {post.author.lastName}
+                        نویسنده: {post.author?.firstName} {post.author?.lastName}
                     </p>
 
                     <motion.div

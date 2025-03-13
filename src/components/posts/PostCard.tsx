@@ -8,11 +8,12 @@ export type postType = {
     id: string;
     title: string;
     content: string;
-    authorId: string;
+    authorId?: string;
     createdAt: string | Date;
-    updatedAt: string | Date;
+    updatedAt?: string | Date;
     published: boolean;
     images: string[];
+
 };
 
 interface PostProps {

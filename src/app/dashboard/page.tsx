@@ -5,6 +5,8 @@ import { cookies } from "next/headers";
 
 async function getStats() {
     const userCookie = cookies().get("user");
+    console.log(userCookie);
+
     if (!userCookie) throw new Error("User not authenticated");
 
     const user = JSON.parse(userCookie.value);

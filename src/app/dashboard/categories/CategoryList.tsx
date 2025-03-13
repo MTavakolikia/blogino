@@ -54,12 +54,12 @@ export default function CategoryList({ categories: initialCategories }: Category
                 </TableHeader>
                 <TableBody>
                     {categories.map((category) => (
-                        <TableRow key={category.id}>
+                        <TableRow key={category?.id}>
                             <TableCell className="font-medium flex items-center gap-2">
                                 <Tag className="w-4 h-4" />
-                                {category.name}
+                                {category?.name}
                             </TableCell>
-                            <TableCell>{category._count.posts}</TableCell>
+                            <TableCell>{category?._count.posts}</TableCell>
                             <TableCell className="text-right">
                                 <div className="flex justify-end gap-2">
                                     <Button
@@ -72,7 +72,7 @@ export default function CategoryList({ categories: initialCategories }: Category
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        onClick={() => handleDelete(category.id)}
+                                        onClick={() => handleDelete(category?.id)}
                                         className="text-destructive"
                                     >
                                         <Trash2 className="w-4 h-4" />

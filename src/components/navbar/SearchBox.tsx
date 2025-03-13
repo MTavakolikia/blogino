@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FieldValues } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,11 @@ import { ChevronDown, Search } from "lucide-react";
 const categories = ["Technology", "Coding", "Design", "Crypto"];
 
 export default function SearchBox() {
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit } = useForm<FieldValues>();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState("All categories");
 
-    const onSubmit = (data) => {
+    const onSubmit = (data: FieldValues) => {
         console.log("Search Data:", { ...data, category: selectedCategory });
     };
 

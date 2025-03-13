@@ -53,13 +53,13 @@ export default function EditCategoryDialog({
     const form = useForm<CategoryFormData>({
         resolver: zodResolver(categorySchema),
         defaultValues: {
-            name: category.name,
+            name: category?.name,
         },
     });
 
     useEffect(() => {
         form.reset({
-            name: category.name,
+            name: category?.name,
         });
     }, [category, form]);
 
@@ -67,7 +67,7 @@ export default function EditCategoryDialog({
         try {
             setLoading(true);
 
-            const response = await axios.patch(`/api/posts/category/${category.id}}`, data);
+            const response = await axios.patch(`/api/posts/category/${category?.id}}`, data);
             onUpdate(response.data);
             toast.success("دسته‌بندی با موفقیت ویرایش شد");
             onClose();

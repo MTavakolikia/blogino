@@ -19,6 +19,9 @@ interface Post {
     images: string[];
     category: { name: string };
     createdAt: string;
+    published: boolean;
+    authorId?: string;
+    updatedAt?: string;
 }
 
 export default function NewsByCategory() {
@@ -33,6 +36,7 @@ export default function NewsByCategory() {
                 const response = await axios.get("/api/posts/category");
                 setCategories(response.data);
             } catch (err) {
+                console.log(err);
                 toast("Failed to fetch categories.");
             }
         };
@@ -42,6 +46,7 @@ export default function NewsByCategory() {
                 const response = await axios.get("/api/posts");
                 setPosts(response.data);
             } catch (err) {
+                console.log(err);
                 toast("Failed to fetch posts.");
             } finally {
                 setLoading(false);
@@ -55,7 +60,7 @@ export default function NewsByCategory() {
     const filteredPosts =
         activeCategory === "All"
             ? posts
-            : posts.filter((post) => post.category.name === activeCategory);
+            : posts.filter((post) => post.category?.name === activeCategory);
 
     if (loading) return <div className="text-center py-10 text-lg">Loading...</div>;
 
@@ -73,12 +78,12 @@ export default function NewsByCategory() {
                     </TabsTrigger>
                     {categories.map((category) => (
                         <TabsTrigger
-                            key={category.id}
-                            value={category.name}
-                            onClick={() => setActiveCategory(category.name)}
+                            key={category?.id}
+                            value={category?.name}
+                            onClick={() => setActiveCategory(category?.name)}
                             className="dark:text-white"
                         >
-                            {category.name}
+                            {category?.name}
                         </TabsTrigger>
                     ))}
                 </TabsList>

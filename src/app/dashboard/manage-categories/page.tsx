@@ -56,6 +56,7 @@ export default function ManageCategories() {
             const res = await axios.get("/api/posts/category");
             setCategories(res.data);
         } catch (error) {
+            console.log(error);
             toast("Failed to fetch categories.");
         }
     };
@@ -74,6 +75,7 @@ export default function ManageCategories() {
             setEditCategory(null);
             fetchCategories();
         } catch (error) {
+            console.log(error);
             toast("Error while saving category.");
         } finally {
             setLoading(false);
@@ -86,6 +88,7 @@ export default function ManageCategories() {
             toast("Category deleted successfully!");
             fetchCategories();
         } catch (error) {
+            console.log(error);
             toast("Error deleting category.");
         }
     };
@@ -100,12 +103,12 @@ export default function ManageCategories() {
             {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {categories.map((category) => (
-                    <Card key={category.id}>
+                    <Card key={category?.id}>
                         <CardHeader>
-                            <CardTitle>Category Name: <span className="text-cyan-500">{category.name}</span></CardTitle>
+                            <CardTitle>Category Name: <span className="text-cyan-500">{category?.name}</span></CardTitle>
                         </CardHeader>
                         <CardContent className="flex justify-between">
-                            <Button size="sm" variant="outline" onClick={() => { setEditCategory(category); setValue("name", category.name) }}>Edit</Button>
+                            <Button size="sm" variant="outline" onClick={() => { setEditCategory(category); setValue("name", category?.name) }}>Edit</Button>
                             <AlertDialog>
                                 <AlertDialogTrigger>
                                     <Button size="sm" variant="destructive" >Delete</Button>
@@ -120,7 +123,7 @@ export default function ManageCategories() {
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction className="bg-red-800 hover:bg-red-900" onClick={() => handleDelete(category.id)}>
+                                        <AlertDialogAction className="bg-red-800 hover:bg-red-900" onClick={() => handleDelete(category?.id)}>
                                             Delete
 
                                         </AlertDialogAction>
