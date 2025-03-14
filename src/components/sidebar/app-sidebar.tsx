@@ -2,6 +2,7 @@
 import {
     AudioWaveform,
     BookmarkCheck,
+    Cog,
     Command,
     FilePlus,
     Frame,
@@ -99,6 +100,12 @@ const data = {
             title: "Liked Post",
             url: routes.likedPost,
             icon: Heart,
+
+        },
+        {
+            title: "Settings",
+            url: routes.settings,
+            icon: Cog,
 
         },
 
