@@ -1,9 +1,8 @@
-import React from 'react'
 
-function page() {
+function SettingPage() {
     return (
         <div>Setting</div>
     )
 }
 
-export default page
+export default SettingPage
