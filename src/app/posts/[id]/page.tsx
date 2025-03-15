@@ -45,7 +45,11 @@ export default async function PostPage({ params }: PostPageProps) {
                     )}
                     <div className="flex items-center gap-2">
                         <span>تاریخ:</span>
-                        <span>{new Date(post.createdAt).toLocaleDateString('fa-IR')}</span>
+                        <span>{new Date(post.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}</span>
                     </div>
                 </div>
 

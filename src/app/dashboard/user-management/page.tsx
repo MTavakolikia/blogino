@@ -1,14 +1,16 @@
 import { prisma } from "@/utils/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, User, Calendar, Shield, UserCog } from "lucide-react";
+import { Mail, User, Calendar, Shield, UserCog, UserPlus } from "lucide-react";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import UserActions from "./UserActions";
+import { Button } from "@/components/ui/button";
 
 async function getUsers() {
     try {
         return await prisma.user.findMany({
             orderBy: { createdAt: "desc" },
+
             select: {
                 id: true,
                 firstName: true,
@@ -17,6 +19,7 @@ async function getUsers() {
                 role: true,
                 profilePic: true,
                 createdAt: true,
+                active: true,
                 _count: {
                     select: {
                         posts: true,
@@ -30,9 +33,9 @@ async function getUsers() {
     }
 }
 
+
 export default async function UserManagement() {
     const users = await getUsers();
-
     return (
         <ProtectedRoute requiredRoles={["ADMIN"]}>
             <div className="container mx-auto px-6 py-8">
@@ -41,13 +44,17 @@ export default async function UserManagement() {
                         <UserCog className="w-8 h-8 text-primary" />
                         User Management
                     </h1>
+                    <Button>
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        Add User
+                    </Button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {users.map((user) => (
                         <Card key={user.id} className="shadow-md hover:shadow-lg transition">
                             <CardHeader className="flex flex-row items-center gap-4">
-                                <Avatar className="w-14 h-14">
+                                <Avatar className={`w-16 h-16 ${user.active ? "border-4 border-green-300" : "border-4 border-red-500"}`}>
                                     <AvatarImage
                                         src={user.profilePic || "/profile.png"}
                                         alt={`${user.firstName} ${user.lastName}`}
@@ -75,7 +82,11 @@ export default async function UserManagement() {
                                     </p>
                                     <p className="flex items-center gap-2 text-sm">
                                         <Calendar className="w-4 h-4" />
-                                        Joined: {new Date(user.createdAt).toLocaleDateString()}
+                                        Joined: {new Date(user.createdAt).toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
+                                        })}
                                     </p>
                                     <p className="flex items-center gap-2 text-sm">
                                         <User className="w-4 h-4" />

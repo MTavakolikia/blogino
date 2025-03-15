@@ -83,25 +83,29 @@ export default function UserProfileDialog({ user }: UserActionsProps) {
                                         <Label>Email</Label>
                                         <Input value={user.email} readOnly />
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label>Role</Label>
-                                        <Input value={user.role} readOnly />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Role</Label>
+                                            <Input value={user.role} readOnly />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Join Date</Label>
+                                            <Input
+                                                value={user.createdAt.toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}
+                                                readOnly
+                                            />
+                                        </div>
                                     </div>
+
                                     <div className="space-y-2">
                                         <Label>Bio</Label>
                                         <Input value={user.bio || "No bio provided"} readOnly />
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label>Join Date</Label>
-                                        <Input
-                                            value={user.createdAt.toLocaleDateString('en-US', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric'
-                                            })}
-                                            readOnly
-                                        />
-                                    </div>
+
                                 </CardContent>
                             </Card>
                         </TabsContent>

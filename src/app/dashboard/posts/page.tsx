@@ -102,7 +102,11 @@ export default async function PostsPage() {
                                     Status: {post.published ? "Published" : "Draft"}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                    Created: {new Date(post.createdAt).toLocaleDateString()}
+                                    Created: {new Date(post.createdAt).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
                                 </p>
                             </div>
                         </div>

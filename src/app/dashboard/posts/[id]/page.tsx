@@ -73,7 +73,11 @@ export default function PostPage() {
                 <CardHeader className="p-6">
                     <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
                     <p className="text-sm text-gray-500 mt-1">
-                        {new Date(post.createdAt).toLocaleDateString()} | {post.category?.name}
+                        {new Date(post.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}| {post.category?.name}
                     </p>
                 </CardHeader>
                 <CardContent className="p-6">

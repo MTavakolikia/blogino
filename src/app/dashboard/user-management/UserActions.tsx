@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import UserProfileDialog from "@/components/user-management/UserProfileDialog";
 import DeleteUser from "@/components/user-management/DeleteUser";
-
+import { useRouter } from "next/navigation";
 export interface User {
     id: string;
     firstName: string;
@@ -18,6 +18,7 @@ export interface User {
     profilePic: string | null;
     bio?: string;
     createdAt: Date;
+    active: boolean;
     _count?: {
         posts: number;
     };
@@ -28,12 +29,15 @@ export interface UserActionsProps {
 }
 
 export default function UserActions({ user }: UserActionsProps) {
+
     const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
     const handleRoleChange = async (newRole: string) => {
         setIsLoading(true);
         try {
             await axios.patch(`/api/users/${user.id}`, { role: newRole });
             toast.success(`User role updated to ${newRole}`);
+            router.refresh();
         } catch (error) {
             console.error("Error updating user role:", error);
             toast.error("Failed to update user role");
@@ -42,19 +46,19 @@ export default function UserActions({ user }: UserActionsProps) {
         }
     };
 
-    const handleDeactivate = async () => {
+    const handleActiveOrDeactivate = async (userStatus: boolean) => {
         setIsLoading(true);
         try {
-            await axios.patch(`/api/users/${user.id}`, { active: false });
-            toast.success("User account deactivated");
+            await axios.patch(`/api/users/${user.id}`, { active: userStatus });
+            toast.success(`User account ${userStatus ? "activated" : "deactivated"}`);
+            router.refresh();
         } catch (error) {
-            console.error("Error deactivating user:", error);
-            toast.error("Failed to deactivate user");
+            console.error(`Error ${userStatus ? "activating" : "deactivating"} user:`, error);
+            toast.error(`Failed to ${userStatus ? "activate" : "deactivate"} user`);
         } finally {
             setIsLoading(false);
         }
-    };
-
+    }
 
     return (
         <div className="flex items-center justify-between">
@@ -88,11 +92,11 @@ export default function UserActions({ user }: UserActionsProps) {
                         </DropdownMenuItem>
 
                         <DropdownMenuItem
-                            onClick={handleDeactivate}
-                            className="text-destructive"
+                            onClick={() => handleActiveOrDeactivate(!user.active)}
+                            className={`${user.active ? "text-destructive" : "text-green-500"}`}
                         >
                             <Ban className="w-4 h-4 mr-2" />
-                            Deactivate Account
+                            {`${user.active ? "Deactivate" : "Activate"} Account`}
                         </DropdownMenuItem>
 
                     </DropdownMenuContent>
