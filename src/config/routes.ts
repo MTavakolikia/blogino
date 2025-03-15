@@ -9,8 +9,8 @@ const routes = {
     categories: "/dashboard/manage-categories",
     profile: "/dashboard/profile",
     settings: "/dashboard/settings",
-    likedPost: "/dashboard/settings",
-    savedPost: "/dashboard/settings",
+    likedPost: "/dashboard/liked-post",
+    savedPost: "/dashboard/saved-post",
     api: {
         posts: "/api/posts",
         postDetails: (id: string) => `/api/posts/${id}`,

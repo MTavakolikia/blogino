@@ -39,7 +39,6 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => {
           const isActive = pathname === item.url;
-
           return (
 
             <Collapsible

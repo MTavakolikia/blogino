@@ -76,37 +76,31 @@ const data = {
             title: "My Posts",
             url: routes.posts.root,
             icon: StickyNote,
-
         },
         {
             title: "Create New Post",
             url: routes.posts.new,
             icon: FilePlus,
-
         },
         {
             title: "Saved Post",
             url: routes.savedPost,
             icon: BookmarkCheck,
-
         },
         {
             title: "Categories",
             url: routes.categories,
             icon: Tag,
-
         },
         {
             title: "Liked Post",
             url: routes.likedPost,
             icon: Heart,
-
         },
         {
             title: "Settings",
             url: routes.settings,
             icon: Cog,
-
         },
 
     ],
