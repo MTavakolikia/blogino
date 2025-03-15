@@ -15,24 +15,10 @@ import { Input } from "@/components/ui/input";
 import { UserCog } from "lucide-react";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { UserActionsProps } from "@/app/dashboard/user-management/UserActions";
 
-interface UserProfileDialogProps {
-    user: {
-        id: string;
-        firstName: string;
-        lastName: string;
-        email: string;
-        role: string;
-        profilePic: string | null;
-        bio?: string;
-        createdAt: Date;
-        _count?: {
-            posts: number;
-        };
-    };
-}
 
-export default function UserProfileDialog({ user }: UserProfileDialogProps) {
+export default function UserProfileDialog({ user }: UserActionsProps) {
     return (
         <Dialog >
             <Tooltip>

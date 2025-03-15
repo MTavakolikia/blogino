@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { User, UserPen, UserCheck, Ban, Shield, Trash } from "lucide-react";
+import { User, UserPen, UserCheck, Ban, Shield } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import UserProfileDialog from "@/components/user-management/UserProfileDialog";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import DeleteUser from "@/components/user-management/DeleteUser";
 
-interface User {
+export interface User {
     id: string;
     firstName: string;
     lastName: string;
@@ -23,7 +23,7 @@ interface User {
     };
 }
 
-interface UserActionsProps {
+export interface UserActionsProps {
     user: User;
 }
 
@@ -98,18 +98,7 @@ export default function UserActions({ user }: UserActionsProps) {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button variant="outline" size="icon" className="border-red-700" disabled={isLoading}>
-                            <Trash className="w-4 h-4" color="red" />
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>Delete User</p>
-                    </TooltipContent>
-                </Tooltip>
-            </div>
+            <DeleteUser user={user} />
 
         </div>
     );
