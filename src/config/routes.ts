@@ -11,6 +11,7 @@ const routes = {
     settings: "/dashboard/settings",
     likedPost: "/dashboard/liked-post",
     savedPost: "/dashboard/saved-post",
+    userManagement: "/dashboard/user-management",
     api: {
         posts: "/api/posts",
         postDetails: (id: string) => `/api/posts/${id}`,

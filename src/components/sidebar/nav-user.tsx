@@ -29,10 +29,18 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import useUserStore from "@/store/userStore"
+import Link from "next/link"
+import routes from "@/config/routes"
+import { useRouter } from "next/navigation"
 
 export function NavUser() {
   const { isMobile } = useSidebar()
   const { user, clearUser } = useUserStore();
+  const router = useRouter();
+  const handleLogout = () => {
+    clearUser();
+    router.push(routes.home);
+  }
 
   return (
     <SidebarMenu>
@@ -79,8 +87,11 @@ export function NavUser() {
                 Account
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Cog />
-                Setting
+
+                <Link href={routes.settings} className="flex items-center gap-2">
+                  <Cog size={18} />
+                  Setting
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
@@ -88,7 +99,7 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={clearUser}>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

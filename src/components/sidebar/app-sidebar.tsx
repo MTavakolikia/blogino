@@ -2,7 +2,6 @@
 import {
     AudioWaveform,
     BookmarkCheck,
-    Cog,
     Command,
     FilePlus,
     Frame,
@@ -13,6 +12,7 @@ import {
     PieChart,
     StickyNote,
     Tag,
+    User,
 } from "lucide-react"
 
 
@@ -98,9 +98,9 @@ const data = {
             icon: Heart,
         },
         {
-            title: "Settings",
-            url: routes.settings,
-            icon: Cog,
+            title: "User Management",
+            url: routes.userManagement,
+            icon: User,
         },
 
     ],

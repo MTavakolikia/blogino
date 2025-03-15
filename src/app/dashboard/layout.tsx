@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { ThemeToggler } from "@/components/navbar/ThemeToggler";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -29,7 +30,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <ThemeToggler />
                 </div>
               </header>
-              {children}
+              <TooltipProvider>
+                {children}
+              </TooltipProvider>
               <Toaster />
             </main>
           </SidebarProvider>

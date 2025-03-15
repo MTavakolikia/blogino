@@ -2,17 +2,17 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
-// Define protected routes and their required roles
 const protectedRoutes = {
-    "/dashboard": ["ADMIN", "AUTHOR", "USER"], // All authenticated users can access dashboard
+    "/dashboard": ["ADMIN", "AUTHOR", "USER"],
     "/dashboard/admin": ["ADMIN"],
     "/dashboard/posts/manage": ["ADMIN", "AUTHOR"],
     "/dashboard/user-management": ["ADMIN"],
     "/dashboard/posts/create": ["ADMIN", "AUTHOR"],
     "/dashboard/posts": ["ADMIN", "AUTHOR"],
+    "/dashboard/liked-post": ["ADMIN", "AUTHOR", "USER"],
+    "/dashboard/saved-post": ["ADMIN", "AUTHOR", "USER"],
 };
 
-// Define public routes that don't require authentication
 const publicRoutes = [
     "/",
     "/posts",
@@ -26,17 +26,14 @@ const publicRoutes = [
 export function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
-    // Check if the route is public
     if (publicRoutes.some(route => path.startsWith(route))) {
         return NextResponse.next();
     }
 
-    // Check if the route requires protection
     const requiredRoles = Object.entries(protectedRoutes).find(([route]) =>
         path.startsWith(route)
     )?.[1];
 
-    // If no roles are required for this route, allow access
     if (!requiredRoles) {
         return NextResponse.next();
     }
@@ -72,16 +69,8 @@ export function middleware(request: NextRequest) {
     }
 }
 
-// Configure which routes to run middleware on
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - public folder
-         */
         "/((?!_next/static|_next/image|favicon.ico|public).*)",
     ],
 }; 

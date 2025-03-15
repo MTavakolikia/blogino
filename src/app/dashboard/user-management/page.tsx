@@ -68,7 +68,7 @@ export default async function UserManagement() {
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-2">
+                                <div className="my-2">
                                     <p className="flex items-center gap-2 text-sm">
                                         <Mail className="w-4 h-4" />
                                         {user.email}
@@ -81,8 +81,9 @@ export default async function UserManagement() {
                                         <User className="w-4 h-4" />
                                         Posts: {user._count.posts}
                                     </p>
-                                    <div className="mt-4">
+                                    <div className="mt-6">
                                         <UserActions user={user} />
+
                                     </div>
                                 </div>
                             </CardContent>
