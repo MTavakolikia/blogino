@@ -1,10 +1,10 @@
 import { prisma } from "@/utils/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, User, Calendar, Shield, UserCog, UserPlus } from "lucide-react";
+import { Mail, User, Calendar, Shield, UserCog } from "lucide-react";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import UserActions from "./UserActions";
-import { Button } from "@/components/ui/button";
+import UserFormDialog from "@/components/user-management/UserFormDialog";
 
 async function getUsers() {
     try {
@@ -44,10 +44,11 @@ export default async function UserManagement() {
                         <UserCog className="w-8 h-8 text-primary" />
                         User Management
                     </h1>
-                    <Button>
+                    {/* <Button>
                         <UserPlus className="w-4 h-4 mr-2" />
                         Add User
-                    </Button>
+                    </Button> */}
+                    <UserFormDialog mode="create" />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
