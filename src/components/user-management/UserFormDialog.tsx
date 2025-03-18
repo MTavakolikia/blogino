@@ -27,14 +27,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { toast } from "sonner";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { uploadImage } from "@/utils/supabase";
-import { ImageIcon, Loader2 } from "lucide-react";
+// import { uploadImage } from "@/utils/supabase";
+// import { ImageIcon, Loader2 } from "lucide-react";
 
 interface UserFormDialogProps {
     mode: "create" | "edit" | "view";
@@ -53,8 +53,8 @@ interface UserFormDialogProps {
 
 export default function UserFormDialog({ mode, user }: UserFormDialogProps) {
     const [isLoading, setIsLoading] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(user?.profilePic || null);
+    // const [isUploading, setIsUploading] = useState(false);
+    // const [previewUrl, setPreviewUrl] = useState<string | null>(user?.profilePic || null);
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
@@ -95,23 +95,23 @@ export default function UserFormDialog({ mode, user }: UserFormDialogProps) {
         },
     });
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    // const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const file = e.target.files?.[0];
+    //     if (!file) return;
 
-        setIsUploading(true);
-        try {
-            const path = `profile-pics/${Date.now()}-${file.name}`;
-            const url = await uploadImage(file, 'avatars', path);
-            form.setValue('profilePic', url);
-            setPreviewUrl(url);
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            toast.error('Failed to upload image');
-        } finally {
-            setIsUploading(false);
-        }
-    };
+    //     setIsUploading(true);
+    //     try {
+    //         const path = `${Date.now()}-${file.name}`;
+    //         const url = await uploadImage(file, 'user-profiles', path);
+    //         form.setValue('profilePic', url);
+    //         setPreviewUrl(url);
+    //     } catch (error) {
+    //         console.error('Error uploading image:', error);
+    //         toast.error('Failed to upload image');
+    //     } finally {
+    //         setIsUploading(false);
+    //     }
+    // };
 
     const onSubmit = async (data: UserFormValues) => {
         setIsLoading(true);
@@ -164,7 +164,7 @@ export default function UserFormDialog({ mode, user }: UserFormDialogProps) {
                 </DialogHeader>
 
                 <div className="grid gap-6">
-                    <div className="flex items-center gap-4">
+                    {/* <div className="flex items-center gap-4">
                         <div className="relative">
                             <Avatar className="w-20 h-20">
                                 <AvatarImage src={previewUrl || undefined} />
@@ -190,7 +190,7 @@ export default function UserFormDialog({ mode, user }: UserFormDialogProps) {
                                 </label>
                             )}
                         </div>
-                    </div>
+                    </div> */}
 
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

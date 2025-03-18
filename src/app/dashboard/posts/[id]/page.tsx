@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import PostContent from "@/components/posts/PostContent";
+import SavePostButton from "@/components/posts/SavePostButton";
 
 interface Post {
     id: string;
@@ -28,12 +29,17 @@ export default function PostPage() {
     const [loading, setLoading] = useState(true);
     const params = useParams();
     const router = useRouter();
+    const [isSaved, setIsSaved] = useState(false);
 
     useEffect(() => {
         const fetchPost = async () => {
             try {
                 const res = await axios.get(`/api/posts/${params?.id}`);
                 setPost(res.data);
+
+                // Check if post is saved
+                const savedRes = await axios.get("/api/posts/saved");
+                setIsSaved(savedRes.data.some((p: Post) => p.id === params?.id));
             } catch (error) {
                 console.error("Error fetching post:", error);
             } finally {
@@ -70,15 +76,22 @@ export default function PostPage() {
                         transition={{ duration: 1 }}
                     />
                 )}
-                <CardHeader className="p-6">
-                    <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
-                    <p className="text-sm text-gray-500 mt-1">
-                        {new Date(post.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        })}| {post.category?.name}
-                    </p>
+                <CardHeader className="p-6 flex justify-between items-center">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">{post.title}</h1>
+                        <p className="text-sm text-gray-500 mt-1">
+                            {new Date(post.createdAt).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            })}| {post.category?.name}
+                        </p>
+                    </div>
+                    <SavePostButton
+                        postId={post.id}
+                        isSaved={isSaved}
+                        onSaveChange={setIsSaved}
+                    />
                 </CardHeader>
                 <CardContent className="p-6">
                     <div className="prose max-w-none">

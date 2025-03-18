@@ -22,6 +22,20 @@ enum ActionType {
   ROLE_CHANGE
 }
 
+model SavedPost {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+}
+
 model User {
   id              String    @id @default(cuid()) 
   firstName       String   
@@ -40,6 +54,7 @@ model User {
   resetTokenExpiry DateTime?
   auditLogs       AuditLog[] @relation("UserAuditLogs")
   actionLogs      AuditLog[] @relation("ActionBy")
+   savedPosts SavedPost[]
 }
 
 
@@ -80,6 +95,7 @@ model Post {
   updatedAt   DateTime  @updatedAt
   approvedById String? 
   approvedAt   DateTime? 
+   savedBy SavedPost[]
 }
 
 

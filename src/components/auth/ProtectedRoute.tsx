@@ -7,7 +7,7 @@ import { hasPermission } from "@/utils/permissions";
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
-    requiredPermission?: string;
+    requiredPermission?: "create:post" | "edit:post" | "delete:post" | "manage:users" | "approve:post";
     requiredRoles?: string[];
 }
 
@@ -30,7 +30,7 @@ export default function ProtectedRoute({
             return;
         }
 
-        if (requiredPermission && !hasPermission(user, requiredPermission as any)) {
+        if (requiredPermission && !hasPermission(user, requiredPermission)) {
             router.push("/unauthorized");
             return;
         }
