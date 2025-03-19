@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import PostExcerpt from "@/components/posts/PostExcerpt";
 import PostPagination from "./PostPagination";
+import LikeButton from "./LikeButton";
 
 interface Post {
     id: string;
@@ -21,6 +22,9 @@ interface Post {
     updatedAt: string;
     category: { name: string } | null;
     author: { firstName: string; lastName: string };
+    _count?: {
+        likes: number;
+    };
 }
 
 interface PostsListProps {
@@ -97,13 +101,19 @@ export default function PostsList({ initialPosts, totalPages, currentPage, selec
                                             By {post.author.firstName} {post.author.lastName} • {post.category?.name}
                                         </p>
                                     </div>
-                                    <span className="text-sm text-muted-foreground">
-                                        {new Date(post.createdAt).toLocaleDateString('en-US', {
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric'
-                                        })}
-                                    </span>
+                                    <div className="flex items-center gap-4">
+                                        <LikeButton
+                                            postId={post.id}
+                                            initialLikeCount={post._count?.likes || 0}
+                                        />
+                                        <span className="text-sm text-muted-foreground">
+                                            {new Date(post.createdAt).toLocaleDateString('en-US', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric'
+                                            })}
+                                        </span>
+                                    </div>
                                 </div>
                             </CardHeader>
                             <CardContent>
