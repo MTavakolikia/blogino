@@ -6,7 +6,7 @@ export async function PATCH(req: Request) {
         const { id, content } = await req.json();
 
         if (!id || !content) {
-            return NextResponse.json({ error: "شناسه و متن کامنت الزامی است." }, { status: 400 });
+            return NextResponse.json({ error: "Comment ID and text are required." }, { status: 400 });
         }
 
         const updatedComment = await prisma.comment.update({
@@ -17,7 +17,7 @@ export async function PATCH(req: Request) {
         return NextResponse.json(updatedComment, { status: 200 });
     } catch (error) {
         console.error("Error updating comment:", error);
-        return NextResponse.json({ error: "خطا در بروزرسانی کامنت" }, { status: 500 });
+        return NextResponse.json({ error: "Error updating comment" }, { status: 500 });
     }
 }
 
@@ -27,22 +27,22 @@ export async function DELETE(req: Request) {
         const { id } = await req.json();
 
         if (!id) {
-            return NextResponse.json({ error: "شناسه کامنت الزامی است." }, { status: 400 });
+            return NextResponse.json({ error: "Comment ID is required." }, { status: 400 });
         }
 
-        // اول باید همه‌ی پاسخ‌های کامنت را حذف کنیم
+        // First, delete all replies to the comment
         await prisma.comment.deleteMany({
             where: { parentId: id },
         });
 
-        // سپس خود کامنت را حذف کنیم
+        // Then, delete the comment itself
         await prisma.comment.delete({
             where: { id },
         });
 
-        return NextResponse.json({ message: "کامنت حذف شد." }, { status: 200 });
+        return NextResponse.json({ message: "Comment deleted." }, { status: 200 });
     } catch (error) {
         console.error("Error deleting comment:", error);
-        return NextResponse.json({ error: "خطا در حذف کامنت" }, { status: 500 });
+        return NextResponse.json({ error: "Error deleting comment" }, { status: 500 });
     }
 }

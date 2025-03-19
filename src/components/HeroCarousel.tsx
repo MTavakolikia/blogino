@@ -37,7 +37,7 @@ export default function HeroCarousel() {
                 const response = await axios.get("/api/posts");
                 console.log(response.data);
 
-                setPosts(response.data.slice(0, 5));
+                setPosts(response.data.posts.slice(0, 5));
             } catch (error) {
                 console.error("Error fetching featured posts:", error);
             }

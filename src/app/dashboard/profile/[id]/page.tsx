@@ -18,7 +18,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 const response = await axios.get(`/api/users/${params.id}`);
                 setUser(response.data);
             } catch (err: any) {
-                setError(err.response?.data?.error || "خطایی رخ داد.");
+                setError(err.response?.data?.error || "An error occurred.");
             } finally {
                 setLoading(false);
             }
@@ -27,12 +27,12 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         fetchUser();
     }, [params.id]);
 
-    if (loading) return <p>در حال بارگذاری...</p>;
+    if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
 
     return (
         <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
-            <h1 className="text-2xl font-bold mb-6 text-center">پروفایل کاربر</h1>
+            <h1 className="text-2xl font-bold mb-6 text-center">User Profile</h1>
             {user && <UserProfile user={user} />}
         </div>
     );

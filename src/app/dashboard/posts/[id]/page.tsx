@@ -98,7 +98,7 @@ export default function PostPage() {
                         <PostContent content={post.content} />
                     </div>
                     <p className="mt-4 text-gray-600 font-semibold">
-                        نویسنده: {post.author?.firstName} {post.author?.lastName}
+                        Author: {post.author?.firstName} {post.author?.lastName}
                     </p>
 
                     <motion.div
@@ -108,10 +108,10 @@ export default function PostPage() {
                         transition={{ delay: 0.3, duration: 0.5 }}
                     >
                         <Button variant="outline" onClick={() => router.back()}>
-                            بازگشت
+                            Back
                         </Button>
                         <Button variant="default">
-                            {post.published ? "عدم انتشار" : "انتشار"}
+                            {post.published ? "Unpublish" : "Publish"}
                         </Button>
                     </motion.div>
                 </CardContent>

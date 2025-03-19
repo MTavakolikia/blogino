@@ -43,9 +43,9 @@ export default function ProfileImageUploadForm({ userId }: ProfileImageUploadPro
 
             await axios.patch(`/api/users/${userId}`, { profilePic: publicURL });
 
-            toast("تصویر پروفایل با موفقیت آپلود شد!");
+            toast("Profile image uploaded successfully!");
         } catch (err: any) {
-            setError(err.message || "خطایی رخ داد.");
+            setError(err.message || "An error occurred.");
         } finally {
             setLoading(false);
         }
@@ -53,7 +53,7 @@ export default function ProfileImageUploadForm({ userId }: ProfileImageUploadPro
 
     return (
         <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
-            <h1 className="text-2xl font-bold mb-6 text-center">آپلود تصویر پروفایل</h1>
+            <h1 className="text-2xl font-bold mb-6 text-center">Upload Profile Image</h1>
             {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
             <input
                 type="file"
@@ -62,7 +62,7 @@ export default function ProfileImageUploadForm({ userId }: ProfileImageUploadPro
                 disabled={loading}
                 className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
             />
-            {loading && <p>در حال آپلود...</p>}
+            {loading && <p>Uploading...</p>}
         </div>
     );
 }

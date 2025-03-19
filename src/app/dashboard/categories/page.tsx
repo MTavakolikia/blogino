@@ -30,15 +30,9 @@ export default async function CategoriesPage() {
         <ProtectedRoute requiredRoles={["ADMIN", "AUTHOR"]}>
             <div className="container mx-auto px-6 py-8">
                 <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-3xl font-bold flex items-center gap-2">
-                        <Tag className="w-8 h-8 text-primary" />
-                        مدیریت دسته‌بندی‌ها
-                    </h1>
+                    <h1 className="text-2xl font-bold mb-6 text-center">Manage Categories</h1>
                     <CreateCategoryDialog>
-                        <Button>
-                            <Plus className="w-4 h-4 ml-2" />
-                            افزودن دسته‌بندی
-                        </Button>
+                        <Button>Add Category</Button>
                     </CreateCategoryDialog>
                 </div>
 

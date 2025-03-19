@@ -2,13 +2,13 @@ import { prisma } from "@/utils/prisma";
 import { notFound } from "next/navigation";
 import PostContent from "@/components/posts/PostContent";
 
-interface PostPageProps {
+interface SinglePostPageProps {
     params: {
         id: string;
     };
 }
 
-export default async function PostPage({ params }: PostPageProps) {
+export default async function SinglePostPage({ params }: SinglePostPageProps) {
     const post = await prisma.post.findUnique({
         where: { id: params.id },
         include: {

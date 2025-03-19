@@ -44,7 +44,7 @@ export default function NewsByCategory() {
         const fetchPosts = async () => {
             try {
                 const response = await axios.get("/api/posts");
-                setPosts(response.data);
+                setPosts(response.data.posts);
             } catch (err) {
                 console.log(err);
                 toast("Failed to fetch posts.");

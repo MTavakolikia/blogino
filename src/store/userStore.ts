@@ -18,7 +18,7 @@ const useUserStore = create<UserStore>((set) => ({
 
         if (typeof window !== "undefined") {
             sessionStorage.setItem("user", JSON.stringify(user));
-            Cookies.set("user", JSON.stringify(user), { expires: 7 }); // ذخیره در کوکی برای ۷ روز
+            Cookies.set("user", JSON.stringify(user), { expires: 7 }); // Store in cookies for 7 days
         }
     },
 

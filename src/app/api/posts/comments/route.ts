@@ -7,11 +7,11 @@ export async function GET(req: Request) {
         const postId = searchParams.get("postId");
 
         if (!postId) {
-            return NextResponse.json({ error: "شناسه پست الزامی است." }, { status: 400 });
+            return NextResponse.json({ error: "Post ID is required." }, { status: 400 });
         }
 
         const comments = await prisma.comment.findMany({
-            where: { postId, parentId: null }, // فقط کامنت‌های والد را می‌گیرد
+            where: { postId, parentId: null }, // Only get parent comments
             include: {
                 user: { select: { firstName: true, lastName: true, profilePic: true } },
                 replies: {
@@ -25,18 +25,16 @@ export async function GET(req: Request) {
         return NextResponse.json(comments, { status: 200 });
     } catch (error) {
         console.error("Error fetching comments:", error);
-        return NextResponse.json({ error: "خطا در دریافت کامنت‌ها" }, { status: 500 });
+        return NextResponse.json({ error: "Error fetching comments" }, { status: 500 });
     }
 }
-
-
 
 export async function POST(req: Request) {
     try {
         const { content, postId, userId, parentId } = await req.json();
 
         if (!content || !postId || !userId) {
-            return NextResponse.json({ error: "اطلاعات ناقص است." }, { status: 400 });
+            return NextResponse.json({ error: "Incomplete information." }, { status: 400 });
         }
 
         const newComment = await prisma.comment.create({
@@ -44,13 +42,13 @@ export async function POST(req: Request) {
                 content,
                 postId,
                 userId,
-                parentId, // اگر parentId داشته باشد یعنی یک "پاسخ" است
+                parentId, // If parentId exists, it's a "reply"
             },
         });
 
         return NextResponse.json(newComment, { status: 201 });
     } catch (error) {
         console.error("Error creating comment:", error);
-        return NextResponse.json({ error: "مشکلی رخ داده است." }, { status: 500 });
+        return NextResponse.json({ error: "An error occurred." }, { status: 500 });
     }
 }

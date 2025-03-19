@@ -34,7 +34,7 @@ export default function PostList() {
 
     return (
         <div className="max-w-md mx-auto p-8 bg-white shadow-lg rounded-lg">
-            <h1 className="text-2xl font-bold mb-6 text-center">آخرین پست‌ها</h1>
+            <h1 className="text-2xl font-bold mb-6 text-center">Latest Posts</h1>
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* {posts && posts.length > 0 ? (
                     posts.map(post => post ? <PostCard key={post.id} postDetail={post} /> : null)

@@ -1,17 +1,17 @@
 import * as z from "zod";
 
 export const registerSchema = z.object({
-    firstName: z.string().min(1, "نام الزامی است"),
-    lastName: z.string().min(1, "نام خانوادگی الزامی است"),
-    email: z.string().email("ایمیل معتبر نیست"),
-    password: z.string().min(6, "رمز عبور حداقل 6 کاراکتر باید باشد"),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
 });
 export type RegisterFormData = z.infer<typeof registerSchema>;
 
 
 export const loginSchema = z.object({
-    email: z.string().email("ایمیل معتبر نیست"),
-    password: z.string().min(6, "رمز عبور حداقل 6 کاراکتر باید باشد"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
 });
 export type LoginFormData = z.infer<typeof loginSchema>;
 

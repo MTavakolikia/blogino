@@ -51,33 +51,58 @@ export async function POST(request: Request) {
     }
 }
 
-
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        const posts = await prisma.post.findMany({
-            include: {
-                author: {
-                    select: {
-                        firstName: true,
-                        lastName: true,
-                    },
-                },
-                category: {
-                    select: {
-                        name: true,
-                    },
-                },
-            },
-        });
+        const { searchParams } = new URL(request.url);
+        const page = Number(searchParams.get("page")) || 1;
+        const limit = Number(searchParams.get("limit")) || 6;
+        const category = searchParams.get("category");
 
-        return NextResponse.json(posts, { status: 200 });
+        const skip = (page - 1) * limit;
+
+        const where = {
+            published: true,
+            ...(category && { categoryId: category }),
+        };
+
+        const [posts, total] = await Promise.all([
+            prisma.post.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: {
+                    createdAt: "desc",
+                },
+                include: {
+                    author: {
+                        select: {
+                            firstName: true,
+                            lastName: true,
+                        },
+                    },
+                    category: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                },
+            }),
+            prisma.post.count({ where }),
+        ]);
+
+        return NextResponse.json({
+            posts: posts.map(post => ({
+                ...post,
+                createdAt: post.createdAt.toISOString(),
+                updatedAt: post.updatedAt.toISOString(),
+                approvedAt: post.approvedAt?.toISOString() || null,
+            })),
+            totalPages: Math.ceil(total / limit),
+        });
     } catch (error) {
         console.error("Error fetching posts:", error);
         return NextResponse.json(
-            {
-                error: "Failed to fetch posts",
-                details: error instanceof Error ? error.message : "Unknown error",
-            },
+            { error: "Failed to fetch posts" },
             { status: 500 }
         );
     }
