@@ -4,6 +4,7 @@ import { prisma } from "@/utils/prisma";
 import { Button } from "@/components/ui/button";
 import { Trash2, Edit, Eye, EyeOff, CheckCircle } from "lucide-react";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import axios from "axios";
 
 async function getUserPosts() {
     const cookieStore = await cookies();
@@ -52,6 +53,14 @@ async function getUserPosts() {
 export default async function PostsPage() {
     const posts = await getUserPosts();
 
+    const handleUnpublish = async (postId: string) => {
+        await axios.post(`/api/posts/${postId}`, { published: false });
+    };
+
+    const handlePublish = async (postId: string) => {
+        await axios.post(`/api/posts/${postId}`, { published: true });
+    };
+
     return (
         <ProtectedRoute requiredRoles={["ADMIN", "AUTHOR"]}>
             <div className="container mx-auto px-6 py-8">
@@ -84,11 +93,11 @@ export default async function PostsPage() {
                                         </Link>
                                     </Button>
                                     {post.published ? (
-                                        <Button variant="outline" size="icon">
+                                        <Button variant="outline" size="icon" onClick={() => handleUnpublish(post.id)}>
                                             <EyeOff className="h-4 w-4" />
                                         </Button>
                                     ) : (
-                                        <Button variant="outline" size="icon">
+                                        <Button variant="outline" size="icon" onClick={() => handlePublish(post.id)}>
                                             <CheckCircle className="h-4 w-4" />
                                         </Button>
                                     )}
