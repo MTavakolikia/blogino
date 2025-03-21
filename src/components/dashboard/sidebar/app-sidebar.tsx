@@ -10,6 +10,7 @@ import {
     LayoutDashboard,
     Map,
     PieChart,
+    Rss,
     StickyNote,
     Tag,
     User,
@@ -23,10 +24,10 @@ import {
     SidebarHeader,
     SidebarRail,
 } from "@/components/ui/sidebar"
-import { TeamSwitcher } from "./team-switcher"
 import { NavMain } from "./nav-main"
 import { NavUser } from "./nav-user"
 import routes from "@/config/routes"
+import Link from "next/link"
 
 const data = {
     user: {
@@ -127,12 +128,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
-                <TeamSwitcher teams={data.teams} />
-
+                <Link href="/" className="flex mt-1 items-center justify-center text-2xl gap-2 bg-gradient-to-r from-cyan-100 to-cyan-500 bg-clip-text text-transparent">
+                    <Rss color="white" size={26} />
+                    <span>Blogino</span>
+                </Link>
             </SidebarHeader>
             <SidebarContent>
                 <NavMain items={data.navMain} />
-                {/* <NavProjects projects={data.projects} /> */}
             </SidebarContent>
             <SidebarFooter>
                 <NavUser />

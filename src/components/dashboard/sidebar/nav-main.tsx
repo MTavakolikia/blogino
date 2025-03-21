@@ -49,10 +49,12 @@ export function NavMain({
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title} className="p-0">
-                    <Link href={item.url} className={`flex p-2 items-center w-full h-full gap-2 ${isActive ? "bg-cyan-600" : ""}`}>
-                      {item.icon && <item.icon size={16} />}
-                      <span className={`group-data-[collapsible=icon]:hidden`}>{item.title}</span>
+                  <SidebarMenuButton tooltip={item.title} className={`p-0 ${isActive ? "bg-cyan-600" : ""}`}>
+                    <Link href={item.url} className={`flex  items-center w-full h-full gap-2 p-2 group-data-[collapsible=icon]:p-0`}>
+                      <div className="flex items-center justify-center w-4 h-4">
+                        {item.icon && <item.icon size={16} />}
+                      </div>
+                      <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
                     </Link>
 
                     {/* <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" /> */}
