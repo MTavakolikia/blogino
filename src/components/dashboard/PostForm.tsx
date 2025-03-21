@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import useUserStore from "@/store/userStore";
 import { toast } from "sonner";
-import RichTextEditor from "./posts/RichTextEditor";
+import RichTextEditor from "../posts/RichTextEditor";
 
 
 const createPostSchema = z.object({
@@ -75,7 +75,6 @@ export default function CreatePostForm() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Title */}
           <FormField
             control={form.control}
             name="title"
@@ -98,7 +97,6 @@ export default function CreatePostForm() {
                 <FormLabel>Content</FormLabel>
                 <FormControl>
                   <RichTextEditor value={field.value} onChange={field.onChange} />
-
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -106,7 +104,6 @@ export default function CreatePostForm() {
           />
 
 
-          {/* Category Selection */}
           <FormField
             control={form.control}
             name="categoryId"
@@ -140,7 +137,6 @@ export default function CreatePostForm() {
             )}
           />
 
-          {/* Submit Button */}
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Creating..." : "Create Post"}
           </Button>

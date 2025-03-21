@@ -1,8 +1,8 @@
-import { AppSidebar } from "@/components/sidebar/app-sidebar"
+import { AppSidebar } from "@/components/dashboard/sidebar/app-sidebar"
 import "@/styles/globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator";
-import { ThemeToggler } from "@/components/navbar/ThemeToggler";
+import { ThemeToggler } from "@/components/root/navbar/ThemeToggler";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";

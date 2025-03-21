@@ -4,7 +4,7 @@ import { prisma } from "@/utils/prisma";
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
     try {
         const { title, content, published } = await request.json();
-        const postId = params.id;
+        const { id: postId } = await params;
 
         if (!title && !content && published === undefined) {
             return NextResponse.json(
@@ -54,7 +54,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
-        const postId = params.id;
+        const { id: postId } = await params;
 
         const post = await prisma.post.findUnique({
             where: { id: postId },

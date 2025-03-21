@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { User, UserPen, UserCheck, Ban, Shield } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
-import UserProfileDialog from "@/components/user-management/UserProfileDialog";
-import DeleteUser from "@/components/user-management/DeleteUser";
+
 import { useRouter } from "next/navigation";
+import UserProfileDialog from "@/components/dashboard/user-management/UserProfileDialog";
+import DeleteUser from "@/components/dashboard/user-management/DeleteUser";
 export interface User {
     id: string;
     firstName: string;

@@ -1,5 +1,5 @@
 "use client"
-import UserProfile from "@/components/UserProfile";
+import UserProfile from "@/components/dashboard/UserProfile";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -17,8 +17,8 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             try {
                 const response = await axios.get(`/api/users/${params.id}`);
                 setUser(response.data);
-            } catch (err: any) {
-                setError(err.response?.data?.error || "An error occurred.");
+            } catch (err: unknown) {
+                setError(err instanceof Error ? err.message : "An error occurred.");
             } finally {
                 setLoading(false);
             }

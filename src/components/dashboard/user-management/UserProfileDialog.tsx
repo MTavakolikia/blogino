@@ -13,9 +13,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { UserCog } from "lucide-react";
-import { Button } from "../ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+
 import { UserActionsProps } from "@/app/dashboard/user-management/UserActions";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 
 export default function UserProfileDialog({ user }: UserActionsProps) {

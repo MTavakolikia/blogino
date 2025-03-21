@@ -1,4 +1,4 @@
-import HeroCarousel from "@/components/HeroCarousel";
+import HeroCarousel from "@/components/root/HeroCarousel";
 import NewsByCategory from "@/components/posts/NewsByCategory";
 
 export default async function Home() {

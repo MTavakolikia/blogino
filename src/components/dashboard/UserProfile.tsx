@@ -1,4 +1,4 @@
-import ProfileImageUploadForm from "./forms/ProfileImageUploadForm";
+import ProfileImageUploadForm from "../forms/ProfileImageUploadForm";
 
 interface UserProfileProps {
     user: { firstName: string; lastName: string; profilePic?: string };

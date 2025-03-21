@@ -1,4 +1,4 @@
-import CreatePostForm from "@/components/PostForm"
+import CreatePostForm from "@/components/dashboard/PostForm"
 
 function page() {
     return (
