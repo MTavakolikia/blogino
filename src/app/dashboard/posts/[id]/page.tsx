@@ -9,6 +9,7 @@ import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import PostContent from "@/components/posts/PostContent";
 import SavePostButton from "@/components/posts/SavePostButton";
+import { toast } from "sonner";
 
 interface Post {
     id: string;
@@ -31,13 +32,22 @@ export default function PostPage() {
     const router = useRouter();
     const [isSaved, setIsSaved] = useState(false);
 
+    const handleTogglePublishPost = async (isPublished: boolean) => {
+        if (isPublished) {
+            await axios.put(`/api/posts/${post?.id}`, { published: false });
+        } else {
+            await axios.put(`/api/posts/${post?.id}`, { published: true });
+        }
+        toast.success(`Post ${isPublished ? "unpublished" : "published"} successfully!`);
+        router.push("/dashboard/posts");
+    };
+
     useEffect(() => {
         const fetchPost = async () => {
             try {
                 const res = await axios.get(`/api/posts/${params?.id}`);
                 setPost(res.data);
 
-                // Check if post is saved
                 const savedRes = await axios.get("/api/posts/saved");
                 setIsSaved(savedRes.data.some((p: Post) => p.id === params?.id));
             } catch (error) {
@@ -110,7 +120,7 @@ export default function PostPage() {
                         <Button variant="outline" onClick={() => router.back()}>
                             Back
                         </Button>
-                        <Button variant="default">
+                        <Button variant="default" onClick={() => handleTogglePublishPost(post.published)}>
                             {post.published ? "Unpublish" : "Publish"}
                         </Button>
                     </motion.div>

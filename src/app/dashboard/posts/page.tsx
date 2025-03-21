@@ -30,7 +30,6 @@ async function getUserPosts() {
             });
         }
 
-        // For authors, fetch only their posts
         return await prisma.post.findMany({
             where: { authorId: user.id },
             include: {
@@ -65,7 +64,6 @@ export default async function PostsPage() {
                 <div className="grid gap-4">
                     {posts.map((post) => (
                         <DashboardPostCard key={post.id} post={post} />
-
                     ))}
                 </div>
             </div>
