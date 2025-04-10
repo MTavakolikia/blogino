@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
         response.headers.set("Set-Cookie", cookie);
         return response;
     } catch (error) {
-        return NextResponse.json({ error: "مشکلی پیش آمد!" }, { status: 500 });
+        console.log(error);
+        return NextResponse.json({ error: "Some error occurred!" }, { status: 500 });
     }
 }
