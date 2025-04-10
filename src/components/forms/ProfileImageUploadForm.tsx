@@ -1,8 +1,9 @@
-"use client"
+"use client";
+
 import { useState } from "react";
 import axios from "axios";
 import { supabase } from "@/lib/supabase";
-import { toast } from "sonner"
+import { toast } from "sonner";
 
 interface ProfileImageUploadProps {
     userId: string;
@@ -31,11 +32,11 @@ export default function ProfileImageUploadForm({ userId }: ProfileImageUploadPro
                 throw new Error(uploadError.message);
             }
 
-            const { data, error: publicUrlError } = supabase.storage
+            const { data } = supabase.storage
                 .from("user-profiles")
                 .getPublicUrl(filePath);
 
-            if (publicUrlError || !data?.publicUrl) {
+            if (!data?.publicUrl) {
                 throw new Error("Failed to generate public URL for the image.");
             }
 
@@ -43,7 +44,7 @@ export default function ProfileImageUploadForm({ userId }: ProfileImageUploadPro
 
             await axios.patch(`/api/users/${userId}`, { profilePic: publicURL });
 
-            toast("Profile image uploaded successfully!");
+            toast.success("Profile image uploaded successfully!");
         } catch (err: any) {
             setError(err.message || "An error occurred.");
         } finally {
@@ -60,9 +61,9 @@ export default function ProfileImageUploadForm({ userId }: ProfileImageUploadPro
                 accept="image/*"
                 onChange={handleUpload}
                 disabled={loading}
-                className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
             />
-            {loading && <p>Uploading...</p>}
+            {loading && <p className="text-sm text-gray-600 mt-2">Uploading...</p>}
         </div>
     );
 }

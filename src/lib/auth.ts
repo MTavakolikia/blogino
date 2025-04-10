@@ -1,18 +1,16 @@
+import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import { getCookie } from "cookies-next";
 
-export const authenticateUser = (request: Request) => {
-    const token = getCookie("auth_token", {
-        req: { headers: request.headers },
-        res: null,
-    });
+export const authenticateUser = async () => {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth_token");
 
     if (!token) {
         return null;
     }
 
     try {
-        const decoded = jwt.verify(token.toString(), process.env.JWT_SECRET!) as {
+        const decoded = jwt.verify(token.value, process.env.JWT_SECRET!) as {
             userId: string;
             role: string;
         };

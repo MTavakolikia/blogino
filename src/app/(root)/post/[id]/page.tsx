@@ -3,16 +3,17 @@ import { notFound } from "next/navigation";
 import PostContent from "@/components/posts/PostContent";
 import LikeButton from "@/components/posts/LikeButton";
 
-interface SinglePostPageProps {
-    params: {
-        id: string;
-    };
-}
 
-export default async function SinglePostPage({ params }: SinglePostPageProps) {
-    const resolvedParams = await Promise.resolve(params);
+
+export default async function SinglePostPage({
+    params,
+}: {
+    params: Promise<{ id: string }>
+}) {
+    const { id } = await params;
+
     const post = await prisma.post.findUnique({
-        where: { id: resolvedParams.id },
+        where: { id },
         include: {
             author: {
                 select: {
@@ -64,4 +65,4 @@ export default async function SinglePostPage({ params }: SinglePostPageProps) {
             </div>
         </div>
     );
-} 
+}

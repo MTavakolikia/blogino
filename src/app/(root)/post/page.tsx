@@ -88,9 +88,9 @@ async function getPosts(page: number = 1, categoryId: string | null = null) {
 export default async function PostPage({
     searchParams,
 }: {
-    searchParams: { page?: string; category?: string };
+    searchParams: Promise<{ page?: string; category?: string }>
 }) {
-    const params = await Promise.resolve(searchParams);
+    const params = await searchParams
     const page = Number(params.page) || 1;
     const categoryId = params.category || null;
 

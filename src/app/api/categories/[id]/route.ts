@@ -4,11 +4,15 @@ import { authenticateAPI, AuthenticatedRequest } from "@/utils/apiAuth";
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
-) {
+    {
+        params,
+    }: {
+        params: Promise<{ id: string }>
+    }) {
     try {
+        const { id } = await params
         const category = await prisma.category.findUnique({
-            where: { id: params.id },
+            where: { id },
             include: {
                 _count: {
                     select: {
@@ -37,18 +41,21 @@ export async function GET(
 
 export async function PATCH(
     request: AuthenticatedRequest,
-    { params }: { params: { id: string } }
+    {
+        params,
+    }: {
+        params: Promise<{ id: string }>
+    }
 ) {
     try {
-        // Authenticate request
         const authError = await authenticateAPI(request, ["ADMIN", "AUTHOR"]);
         if (authError) return authError;
 
         const { name } = await request.json();
 
-        // Check if category exists
+        const { id } = await params
         const existingCategory = await prisma.category.findUnique({
-            where: { id: params.id },
+            where: { id },
         });
 
         if (!existingCategory) {
@@ -62,7 +69,7 @@ export async function PATCH(
         const nameExists = await prisma.category.findFirst({
             where: {
                 name,
-                NOT: { id: params.id },
+                NOT: { id },
             },
         });
 
@@ -74,7 +81,7 @@ export async function PATCH(
         }
 
         const category = await prisma.category.update({
-            where: { id: params.id },
+            where: { id },
             data: { name },
             include: {
                 _count: {
@@ -97,16 +104,19 @@ export async function PATCH(
 
 export async function DELETE(
     request: AuthenticatedRequest,
-    { params }: { params: { id: string } }
+    {
+        params,
+    }: {
+        params: Promise<{ id: string }>
+    }
 ) {
     try {
-        // Authenticate request
         const authError = await authenticateAPI(request, ["ADMIN"]);
         if (authError) return authError;
 
-        // Check if category exists
+        const { id } = await params
         const category = await prisma.category.findUnique({
-            where: { id: params.id },
+            where: { id },
             include: {
                 _count: {
                     select: {
@@ -123,7 +133,6 @@ export async function DELETE(
             );
         }
 
-        // Check if category has posts
         if (category._count.posts > 0) {
             return NextResponse.json(
                 { error: "Cannot delete category with existing posts" },
@@ -132,7 +141,7 @@ export async function DELETE(
         }
 
         await prisma.category.delete({
-            where: { id: params.id },
+            where: { id },
         });
 
         return NextResponse.json({ message: "Category deleted successfully" });

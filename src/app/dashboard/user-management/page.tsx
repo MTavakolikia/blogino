@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Mail, User, Calendar, Shield, UserCog } from "lucide-react";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import UserActions from "./UserActions";
-import UserFormDialog from "@/components/user-management/UserFormDialog";
+import UserFormDialog from "@/components/dashboard/user-management/UserFormDialog";
 
 async function getUsers() {
     try {

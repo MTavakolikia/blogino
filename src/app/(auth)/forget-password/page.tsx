@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +20,7 @@ const resetPasswordSchema = z.object({
 
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
-export default function ResetPassword() {
+function ResetPasswordInner() {
     const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormData>({
         resolver: zodResolver(resetPasswordSchema),
     });
@@ -45,7 +45,6 @@ export default function ResetPassword() {
             await axios.post("/api/auth/reset-password", { ...data, token });
             toast.success("Password has been successfully changed!");
         } catch (error) {
-
             if (axios.isAxiosError(error)) {
                 toast.error(error.response?.data?.error || "An error occurred while resetting the password.");
             } else {
@@ -55,57 +54,43 @@ export default function ResetPassword() {
     };
 
     return (
-
-        <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-        >
-            <div className="max-w-md mx-auto p-6 ">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <div className="max-w-md mx-auto p-6">
                 <h2 className="text-2xl font-bold mb-4">Reset Password</h2>
-
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div>
                         <Label htmlFor="email">Email</Label>
-
-                        <Input
-                            id="email"
-                            type="email"
-                            placeholder="Enter your email"
-                            {...register("email")}
-                        />
+                        <Input id="email" type="email" placeholder="Enter your email" {...register("email")} />
                         {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
                     </div>
-
                     <div>
                         <Label htmlFor="new-password">New Password</Label>
-
-                        <Input
-                            id="new-password"
-                            type="password"
-                            placeholder="New password"
-                            {...register("newPassword")}
-                        />
+                        <Input id="new-password" type="password" placeholder="New password" {...register("newPassword")} />
                         {errors.newPassword && <p className="text-red-500 text-sm">{errors.newPassword.message}</p>}
                     </div>
                     <motion.div whileHover={{ scale: 1.05 }}>
                         <Button type="submit" className="w-full">Change Password</Button>
                     </motion.div>
-
                 </form>
+
                 <div className="mt-8 text-center text-sm">
-                    Remember your password?
-                    <Link href="/login" className="underline">
-                        Login
-                    </Link>
+                    Remember your password?{" "}
+                    <Link href="/login" className="underline">Login</Link>
                     <div className="mt-4 text-center text-sm">
-                        <Link href="/" className="flex items-center justify-center gap-2 text-cyan-100" >
+                        <Link href="/" className="flex items-center justify-center gap-2 text-cyan-100">
                             <House size={16} /> Back To Blogino
                         </Link>
                     </div>
                 </div>
             </div>
         </motion.div>
+    );
+}
 
+export default function ResetPassword() {
+    return (
+        <Suspense fallback={<div>Loading reset form...</div>}>
+            <ResetPasswordInner />
+        </Suspense>
     );
 }

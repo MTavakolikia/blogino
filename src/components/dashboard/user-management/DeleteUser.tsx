@@ -1,8 +1,7 @@
 "use client"
 
 import { Trash } from "lucide-react"
-import { Button } from "../ui/button"
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -18,6 +17,8 @@ import { UserActionsProps } from "@/app/dashboard/user-management/UserActions"
 import { toast } from "sonner"
 import axios from "axios"
 import { useRouter } from "next/navigation"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Button } from "@/components/ui/button"
 function DeleteUser({ user }: UserActionsProps) {
     const router = useRouter();
     const handleDelete = async () => {

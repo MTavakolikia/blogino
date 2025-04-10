@@ -1,8 +1,9 @@
 import { User } from "@/types/user";
 
+type Role = "ADMIN" | "AUTHOR" | "USER";
 type Permission = "create:post" | "edit:post" | "delete:post" | "manage:users" | "approve:post";
 
-const permissionsByRole = {
+const permissionsByRole: Record<Role, Permission[]> = {
     ADMIN: [
         "create:post",
         "edit:post",
@@ -12,7 +13,7 @@ const permissionsByRole = {
     ],
     AUTHOR: ["create:post", "edit:post"],
     USER: [],
-} as const;
+};
 
 export const hasPermission = (user: User | null, permission: Permission): boolean => {
     if (!user) return false;

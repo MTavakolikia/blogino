@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/utils/prisma";
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, {
+    params,
+}: {
+    params: Promise<{ id: string }>
+}) {
     try {
         const { profilePic, role, active } = await request.json();
-        const userId = params.id;
+        const { id: userId } = await params;
 
         const updatedUser = await prisma.user.update({
             where: { id: userId },
@@ -24,9 +28,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
 }
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, {
+    params,
+}: {
+    params: Promise<{ id: string }>
+}) {
     try {
-        const userId = params.id;
+        const { id: userId } = await params;
 
         const user = await prisma.user.findUnique({
             where: { id: userId },
@@ -57,9 +65,13 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, {
+    params,
+}: {
+    params: Promise<{ id: string }>
+}) {
     try {
-        const userId = params.id;
+        const { id: userId } = await params;
 
         const deletedUser = await prisma.user.delete({
             where: { id: userId },

@@ -8,33 +8,29 @@ export async function POST(req: NextRequest) {
     try {
         const { email, password } = await req.json();
 
-        // پیدا کردن کاربر در دیتابیس
         const user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
             return NextResponse.json({ error: "کاربر یافت نشد!" }, { status: 404 });
         }
 
-        // بررسی رمز عبور
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return NextResponse.json({ error: "رمز عبور اشتباه است!" }, { status: 401 });
         }
 
-        // ایجاد توکن JWT
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
             process.env.JWT_SECRET!,
-            { expiresIn: "7d" } // اعتبار 7 روزه
+            { expiresIn: "7d" }
         );
 
-        // ذخیره توکن در کوکی
         const cookie = serialize("auth_token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
             path: "/",
-            maxAge: 60 * 60 * 24 * 7, // 7 روز
+            maxAge: 60 * 60 * 24 * 7,
         });
 
         const response = NextResponse.json({
