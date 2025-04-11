@@ -1,6 +1,5 @@
 import { prisma } from "@/utils/prisma";
 import { Button } from "@/components/ui/button";
-import { Plus, Tag } from "lucide-react";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import CategoryList from "./CategoryList";
 import CreateCategoryDialog from "./CreateCategoryDialog";
