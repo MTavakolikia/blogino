@@ -1,22 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { serialize } from "cookie";
+import { cookies } from "next/headers";
 import { prisma } from "@/utils/prisma";
 
 export async function POST(req: NextRequest) {
+    const userCookie = await cookies()
     try {
         const { email, password } = await req.json();
 
         const user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
-            return NextResponse.json({ error: "کاربر یافت نشد!" }, { status: 404 });
+            return NextResponse.json({ error: "User Not Found!" }, { status: 404 });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return NextResponse.json({ error: "رمز عبور اشتباه است!" }, { status: 401 });
+            return NextResponse.json({ error: "Password is wrong!" }, { status: 401 });
         }
 
         const token = jwt.sign(
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
             { expiresIn: "7d" }
         );
 
-        const cookie = serialize("auth_token", token, {
+        userCookie.set("auth_token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
@@ -33,17 +34,15 @@ export async function POST(req: NextRequest) {
             maxAge: 60 * 60 * 24 * 7,
         });
 
-        const response = NextResponse.json({
+        return NextResponse.json({
             id: user.id,
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
             role: user.role,
         });
-        response.headers.set("Set-Cookie", cookie);
-        return response;
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ error: "Some error occurred!" }, { status: 500 });
+        console.error("Login Error:", error);
+        return NextResponse.json({ error: "Unexpected error occurred." }, { status: 500 });
     }
 }

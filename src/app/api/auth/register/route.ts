@@ -28,10 +28,8 @@ export async function POST(request: Request) {
             );
         }
 
-        // هش کردن پسورد
         const hashedPassword = await hashPassword(password);
 
-        // ایجاد کاربر جدید
         const user = await prisma.user.create({
             data: {
                 firstName,
@@ -42,7 +40,6 @@ export async function POST(request: Request) {
             },
         });
 
-        // حذف فیلد پسورد از خروجی
         const { password: _, ...userWithoutPassword } = user;
 
         return NextResponse.json(userWithoutPassword, { status: 201 });
