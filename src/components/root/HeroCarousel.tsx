@@ -63,7 +63,7 @@ export default function HeroCarousel() {
                     {posts.map((post) => (
                         <CarouselItem key={post.id} className="w-full basis-1/2">
                             <Card className="relative w-full overflow-hidden rounded-xl shadow-lg dark:bg-gray-900">
-                                <Link href={`/dashboard/posts/${post.id}`}>
+                                <Link href={`/post/${post.id}`}>
                                     <Image
                                         className="w-full h-[400px] object-cover"
                                         src={post.images.length > 0 ? post.images[0] : "/images/default-image.png"}

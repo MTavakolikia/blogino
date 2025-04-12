@@ -27,13 +27,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
     try {
-        // Authenticate request
         const authError = await authenticateAPI(request as AuthenticatedRequest, ["ADMIN", "AUTHOR"]);
         if (authError) return authError;
 
         const { name } = await request.json();
 
-        // Check if category already exists
         const existingCategory = await prisma.category.findUnique({
             where: { name },
         });

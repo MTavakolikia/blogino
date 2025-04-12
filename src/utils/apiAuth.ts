@@ -35,6 +35,8 @@ export async function authenticateAPI(
             select: { id: true, role: true, email: true },
         });
 
+
+
         if (!user) {
             return NextResponse.json(
                 { error: "User no longer exists" },
@@ -59,3 +61,34 @@ export async function authenticateAPI(
         );
     }
 }
+
+
+export const currentUser = async (request: AuthenticatedRequest) => {
+    try {
+        const token = request.cookies.get("auth_token")?.value;
+
+        if (!token) {
+            return null;
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+            id: string;
+            email: string;
+            role: string;
+        };
+
+        const user = await prisma.user.findUnique({
+            where: { id: decoded.id },
+            select: {
+                id: true,
+                email: true,
+                role: true,
+            },
+        });
+
+        return user ?? null;
+    } catch (err) {
+        console.error("Auth Error:", err);
+        return null;
+    }
+};
