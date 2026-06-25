@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import axios from "axios";
@@ -17,11 +17,7 @@ export default function LikeButton({ postId, initialLikeCount = 0, initialIsLike
     const [likeCount, setLikeCount] = useState(initialLikeCount || 0);
     const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        fetchLikeStatus();
-    }, [postId]);
-
-    const fetchLikeStatus = async () => {
+    const fetchLikeStatus = useCallback(async () => {
         try {
             const response = await axios.get(`/api/posts/like/${postId}`);
             setIsLiked(response.data.isLiked ?? response.data.liked);
@@ -30,7 +26,11 @@ export default function LikeButton({ postId, initialLikeCount = 0, initialIsLike
             console.error("Error fetching like status:", error);
             setLikeCount(0);
         }
-    };
+    }, [postId]);
+
+    useEffect(() => {
+        fetchLikeStatus();
+    }, [fetchLikeStatus]);
 
     const handleLike = async () => {
         try {

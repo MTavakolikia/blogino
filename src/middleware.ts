@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
+
+interface AuthTokenPayload {
+    id: string;
+    email: string;
+    role: string;
+}
 
 const protectedRoutes = {
     "/dashboard": ["ADMIN", "AUTHOR", "USER"],
@@ -23,7 +29,7 @@ const publicRoutes = [
     "/api/auth",
 ];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
     if (publicRoutes.some(route => path.startsWith(route))) {
@@ -45,11 +51,9 @@ export function middleware(request: NextRequest) {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-            id: string;
-            email: string;
-            role: string;
-        };
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+        const { payload } = await jwtVerify(token, secret);
+        const decoded = payload as unknown as AuthTokenPayload;
 
         if (!requiredRoles.includes(decoded.role)) {
             return NextResponse.redirect(new URL("/unauthorized", request.url));

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,12 +46,7 @@ export default function PostsList({ initialPosts, totalPages, currentPage, selec
         setPage(1);
     }, [selectedCategory]);
 
-    // Fetch posts when page or category changes
-    useEffect(() => {
-        fetchPosts();
-    }, [page, selectedCategory]);
-
-    const fetchPosts = async () => {
+    const fetchPosts = useCallback(async () => {
         try {
             setLoading(true);
             const response = await axios.get("/api/posts", {
@@ -67,7 +62,12 @@ export default function PostsList({ initialPosts, totalPages, currentPage, selec
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, selectedCategory]);
+
+    // Fetch posts when page or category changes
+    useEffect(() => {
+        fetchPosts();
+    }, [fetchPosts]);
 
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
