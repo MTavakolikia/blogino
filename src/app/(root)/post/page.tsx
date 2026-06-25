@@ -2,6 +2,8 @@ import { prisma } from "@/utils/prisma";
 import PostsList from "@/components/posts/PostsList";
 import CategorySidebar from "@/components/posts/CategorySidebar";
 
+export const dynamic = "force-dynamic";
+
 const POSTS_PER_PAGE = 6;
 
 async function getCategories() {

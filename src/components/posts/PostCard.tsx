@@ -23,7 +23,7 @@ interface PostProps {
 export default function PostCard({ postDetail }: PostProps) {
     return (
         <Card className="max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-            <Link href={`/dashboard/posts/${postDetail.id}`}>
+            <Link href={`/post/${postDetail.id}`}>
                 <Image
                     className="rounded-t-lg w-full h-52 object-cover"
                     src={"/images/default-image.png"}
@@ -34,7 +34,7 @@ export default function PostCard({ postDetail }: PostProps) {
                 />
             </Link>
             <CardContent className="p-5">
-                <Link href={`/dashboard/posts/${postDetail.id}`}>
+                <Link href={`/post/${postDetail.id}`}>
                     <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                         {postDetail.title}
                     </h5>

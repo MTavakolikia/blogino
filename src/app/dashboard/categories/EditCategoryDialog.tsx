@@ -67,7 +67,10 @@ export default function EditCategoryDialog({
         try {
             setLoading(true);
 
-            const response = await axios.patch(`/api/posts/category/${category?.id}}`, data);
+            const response = await axios.put(`/api/posts/category/${category?.id}`, {
+                id: category?.id,
+                ...data,
+            });
             onUpdate(response.data);
             toast.success("دسته‌بندی با موفقیت ویرایش شد");
             onClose();

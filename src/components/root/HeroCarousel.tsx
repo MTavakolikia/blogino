@@ -78,7 +78,7 @@ export default function HeroCarousel() {
                                         {post.category?.name}
                                     </span>
 
-                                    <Link href={`/dashboard/posts/${post.id}`}>
+                                    <Link href={`/post/${post.id}`}>
                                         <h2 className="mt-2 text-2xl font-bold hover:underline">{post.title}</h2>
                                     </Link>
 

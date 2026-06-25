@@ -3,7 +3,7 @@ import { prisma } from "@/utils/prisma";
 
 export async function POST(request: Request) {
     try {
-        const { title, content, authorId } = await request.json();
+        const { title, content, authorId, categoryId, image, images } = await request.json();
 
         if (!title || !content || !authorId) {
             return NextResponse.json(
@@ -35,6 +35,8 @@ export async function POST(request: Request) {
                 content,
                 published: false,
                 authorId,
+                categoryId: categoryId || null,
+                images: Array.isArray(images) ? images : image ? [image] : [],
             },
         });
 
@@ -83,6 +85,11 @@ export async function GET(request: Request) {
                     category: {
                         select: {
                             name: true,
+                        },
+                    },
+                    _count: {
+                        select: {
+                            likes: true,
                         },
                     },
                 },

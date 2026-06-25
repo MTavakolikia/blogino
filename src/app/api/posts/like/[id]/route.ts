@@ -2,7 +2,18 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/utils/prisma";
 import { cookies } from "next/headers";
 
-export async function POST(request: Request) {
+async function getPostLikeCount(postId: string) {
+    return prisma.like.count({
+        where: {
+            postId,
+        },
+    });
+}
+
+export async function POST(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
     try {
         const cookieStore = await cookies();
         const userCookie = cookieStore.get("user");
@@ -15,7 +26,17 @@ export async function POST(request: Request) {
         }
 
         const user = JSON.parse(userCookie.value);
-        const { postId } = await request.json();
+        const { id } = await params;
+        let bodyPostId: string | undefined;
+
+        try {
+            const body = await request.json();
+            bodyPostId = body.postId;
+        } catch {
+            bodyPostId = undefined;
+        }
+
+        const postId = bodyPostId || id;
 
         if (!postId) {
             return NextResponse.json(
@@ -48,7 +69,8 @@ export async function POST(request: Request) {
                     id: existingLike.id
                 }
             });
-            return NextResponse.json({ liked: false }, { status: 200 });
+            const likeCount = await getPostLikeCount(postId);
+            return NextResponse.json({ liked: false, isLiked: false, likeCount }, { status: 200 });
         }
 
         await prisma.like.create({
@@ -58,7 +80,8 @@ export async function POST(request: Request) {
             }
         });
 
-        return NextResponse.json({ liked: true, likeCount: 1 }, { status: 201 });
+        const likeCount = await getPostLikeCount(postId);
+        return NextResponse.json({ liked: true, isLiked: true, likeCount }, { status: 201 });
     } catch (error) {
         console.error("Error handling like:", error);
         return NextResponse.json(
@@ -68,21 +91,25 @@ export async function POST(request: Request) {
     }
 }
 
-export async function GET(request: Request) {
+export async function GET(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
     try {
         const cookieStore = await cookies();
         const userCookie = cookieStore.get("user");
+        const { id: postId } = await params;
 
         if (!userCookie) {
-            return NextResponse.json(
-                { error: "User not authenticated" },
-                { status: 401 }
-            );
+            const likeCount = await getPostLikeCount(postId);
+            return NextResponse.json({
+                liked: false,
+                isLiked: false,
+                likeCount
+            }, { status: 200 });
         }
 
         const user = JSON.parse(userCookie.value);
-        const { searchParams } = new URL(request.url);
-        const postId = searchParams.get("postId");
 
         if (!postId) {
             return NextResponse.json(
@@ -107,6 +134,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json({
             liked: !!isLiked,
+            isLiked: !!isLiked,
             likeCount
         }, { status: 200 });
     } catch (error) {

@@ -3,6 +3,8 @@ import LineChartComponent from "@/components/dashboard/LineChartComponent";
 import { prisma } from "@/utils/prisma";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 async function getStats() {
     const cookieStore = await cookies();
     const userCookie = cookieStore.get("user");

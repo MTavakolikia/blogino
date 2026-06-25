@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import PostContent from "@/components/posts/PostContent";
 import LikeButton from "@/components/posts/LikeButton";
 
+export const dynamic = "force-dynamic";
+
 
 
 export default async function SinglePostPage({

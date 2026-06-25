@@ -23,8 +23,8 @@ export default function LikeButton({ postId, initialLikeCount = 0, initialIsLike
 
     const fetchLikeStatus = async () => {
         try {
-            const response = await axios.get(`/api/posts/${postId}/like`);
-            setIsLiked(response.data.isLiked);
+            const response = await axios.get(`/api/posts/like/${postId}`);
+            setIsLiked(response.data.isLiked ?? response.data.liked);
             setLikeCount(response.data.likeCount || 0);
         } catch (error) {
             console.error("Error fetching like status:", error);
@@ -35,8 +35,8 @@ export default function LikeButton({ postId, initialLikeCount = 0, initialIsLike
     const handleLike = async () => {
         try {
             setIsLoading(true);
-            const response = await axios.post(`/api/posts/${postId}/like`);
-            setIsLiked(response.data.liked);
+            const response = await axios.post(`/api/posts/like/${postId}`);
+            setIsLiked(response.data.isLiked ?? response.data.liked);
             setLikeCount(response.data.likeCount || 0);
             toast.success(response.data.liked ? "Post liked!" : "Post unliked!");
         } catch (error) {

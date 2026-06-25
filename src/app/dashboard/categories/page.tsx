@@ -4,6 +4,8 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import CategoryList from "./CategoryList";
 import CreateCategoryDialog from "./CreateCategoryDialog";
 
+export const dynamic = "force-dynamic";
+
 async function getCategories() {
     try {
         return await prisma.category.findMany({

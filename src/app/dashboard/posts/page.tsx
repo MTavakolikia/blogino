@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import DashboardPostCard from "@/components/dashboard/posts/DashboardPostCard";
 
+export const dynamic = "force-dynamic";
+
 async function getUserPosts() {
     const cookieStore = await cookies();
     const userCookie = cookieStore.get("user");

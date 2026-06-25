@@ -6,6 +6,8 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import UserActions from "./UserActions";
 import UserFormDialog from "@/components/dashboard/user-management/UserFormDialog";
 
+export const dynamic = "force-dynamic";
+
 async function getUsers() {
     try {
         return await prisma.user.findMany({
