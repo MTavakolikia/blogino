@@ -1,12 +1,21 @@
 import { prisma } from "@/utils/prisma";
 import { NextResponse } from "next/server";
+import { authenticateAPI, AuthenticatedRequest } from "@/utils/apiAuth";
 
-export async function POST(request: Request) {
+export async function POST(request: AuthenticatedRequest) {
     try {
+        const authError = await authenticateAPI(request, ["ADMIN", "AUTHOR"]);
+        if (authError) return authError;
+
         const { name } = await request.json();
 
         if (!name) {
             return NextResponse.json({ error: "Category name is required" }, { status: 400 });
+        }
+
+        const existing = await prisma.category.findUnique({ where: { name } });
+        if (existing) {
+            return NextResponse.json({ error: "Category already exists" }, { status: 400 });
         }
 
         const category = await prisma.category.create({

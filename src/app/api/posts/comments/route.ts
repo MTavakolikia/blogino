@@ -1,5 +1,6 @@
-import { prisma } from "@/utils/prisma";
 import { NextResponse } from "next/server";
+import { prisma } from "@/utils/prisma";
+import { authenticateAPI, AuthenticatedRequest } from "@/utils/apiAuth";
 
 export async function GET(req: Request) {
     try {
@@ -11,15 +12,17 @@ export async function GET(req: Request) {
         }
 
         const comments = await prisma.comment.findMany({
-            where: { postId, parentId: null }, // Only get parent comments
+            where: { postId, parentId: null },
             include: {
                 user: { select: { firstName: true, lastName: true, profilePic: true } },
                 replies: {
                     include: {
                         user: { select: { firstName: true, lastName: true, profilePic: true } },
                     },
+                    orderBy: { createdAt: "asc" },
                 },
             },
+            orderBy: { createdAt: "desc" },
         });
 
         return NextResponse.json(comments, { status: 200 });
@@ -29,20 +32,30 @@ export async function GET(req: Request) {
     }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: AuthenticatedRequest) {
     try {
-        const { content, postId, userId, parentId } = await req.json();
+        const authError = await authenticateAPI(req);
+        if (authError) return authError;
 
-        if (!content || !postId || !userId) {
+        const { content, postId, parentId } = await req.json();
+
+        if (!content || !postId) {
             return NextResponse.json({ error: "Incomplete information." }, { status: 400 });
         }
 
+        const post = await prisma.post.findUnique({ where: { id: postId } });
+        if (!post) {
+            return NextResponse.json({ error: "Post not found." }, { status: 404 });
+        }
+
+        // The commenter is always the authenticated user — never from the client.
         const newComment = await prisma.comment.create({
             data: {
                 content,
                 postId,
-                userId,
-                parentId, // If parentId exists, it's a "reply"
+                userId: req.user!.id,
+                parentId: parentId || null,
+                approved: true,
             },
         });
 

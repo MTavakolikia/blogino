@@ -1,174 +1,111 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/utils/prisma";
-import { cookies } from "next/headers";
+import { authenticateAPI, AuthenticatedRequest } from "@/utils/apiAuth";
 
-export async function GET() {
+function requireUser(request: AuthenticatedRequest) {
+    return request.user ?? null;
+}
+
+export async function GET(request: AuthenticatedRequest) {
     try {
-        const cookieStore = await cookies();
-        const userCookie = cookieStore.get("user");
+        const authError = await authenticateAPI(request);
+        if (authError) return authError;
 
-        if (!userCookie) {
-            return NextResponse.json(
-                { error: "User not authenticated" },
-                { status: 401 }
-            );
-        }
-
-        const user = JSON.parse(userCookie.value);
+        const user = requireUser(request)!;
 
         const savedPosts = await prisma.savedPost.findMany({
-            where: {
-                userId: user.id
-            },
+            where: { userId: user.id },
             include: {
                 post: {
                     include: {
-                        author: {
-                            select: {
-                                firstName: true,
-                                lastName: true,
-                            },
-                        },
-                        category: {
-                            select: {
-                                name: true,
-                            },
-                        },
+                        author: { select: { firstName: true, lastName: true } },
+                        category: { select: { name: true } },
                     },
                 },
             },
-            orderBy: {
-                createdAt: "desc"
-            }
+            orderBy: { createdAt: "desc" },
         });
 
-        return NextResponse.json(savedPosts.map(sp => sp.post), { status: 200 });
+        return NextResponse.json(
+            savedPosts.map((sp) => ({
+                ...sp.post,
+                savedAt: sp.createdAt,
+                createdAt: sp.post.createdAt.toISOString(),
+                updatedAt: sp.post.updatedAt.toISOString(),
+            })),
+            { status: 200 },
+        );
     } catch (error) {
         console.error("Error fetching saved posts:", error);
-        return NextResponse.json(
-            { error: "Failed to fetch saved posts" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to fetch saved posts" }, { status: 500 });
     }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: AuthenticatedRequest) {
     try {
-        const cookieStore = await cookies();
-        const userCookie = cookieStore.get("user");
+        const authError = await authenticateAPI(request);
+        if (authError) return authError;
 
-        if (!userCookie) {
-            return NextResponse.json(
-                { error: "User not authenticated" },
-                { status: 401 }
-            );
-        }
-
-        const user = JSON.parse(userCookie.value);
+        const user = requireUser(request)!;
         const { postId } = await request.json();
 
         if (!postId) {
-            return NextResponse.json(
-                { error: "Post ID is required" },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
         }
 
-        // Check if post exists
-        const post = await prisma.post.findUnique({
-            where: { id: postId }
-        });
+        const post = await prisma.post.findUnique({ where: { id: postId } });
 
         if (!post) {
-            return NextResponse.json(
-                { error: "Post not found" },
-                { status: 404 }
-            );
+            return NextResponse.json({ error: "Post not found" }, { status: 404 });
         }
 
-        // Check if already saved
         const existingSavedPost = await prisma.savedPost.findFirst({
-            where: {
-                userId: user.id,
-                postId: postId
-            }
+            where: { userId: user.id, postId },
         });
 
         if (existingSavedPost) {
-            return NextResponse.json(
-                { error: "Post already saved" },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: "Post already saved" }, { status: 400 });
         }
 
         const savedPost = await prisma.savedPost.create({
-            data: {
-                userId: user.id,
-                postId: postId
-            }
+            data: { userId: user.id, postId },
         });
 
         return NextResponse.json(savedPost, { status: 201 });
     } catch (error) {
         console.error("Error saving post:", error);
-        return NextResponse.json(
-            { error: "Failed to save post" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to save post" }, { status: 500 });
     }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: AuthenticatedRequest) {
     try {
-        const cookieStore = await cookies();
-        const userCookie = cookieStore.get("user");
+        const authError = await authenticateAPI(request);
+        if (authError) return authError;
 
-        if (!userCookie) {
-            return NextResponse.json(
-                { error: "User not authenticated" },
-                { status: 401 }
-            );
-        }
-
-        const user = JSON.parse(userCookie.value);
+        const user = requireUser(request)!;
         const { postId } = await request.json();
 
         if (!postId) {
-            return NextResponse.json(
-                { error: "Post ID is required" },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
         }
 
         const savedPost = await prisma.savedPost.findFirst({
-            where: {
-                userId: user.id,
-                postId: postId
-            }
+            where: { userId: user.id, postId },
         });
 
         if (!savedPost) {
-            return NextResponse.json(
-                { error: "Saved post not found" },
-                { status: 404 }
-            );
+            return NextResponse.json({ error: "Saved post not found" }, { status: 404 });
         }
 
-        await prisma.savedPost.delete({
-            where: {
-                id: savedPost.id
-            }
-        });
+        await prisma.savedPost.delete({ where: { id: savedPost.id } });
 
         return NextResponse.json(
             { message: "Post removed from saved posts" },
-            { status: 200 }
+            { status: 200 },
         );
     } catch (error) {
         console.error("Error removing saved post:", error);
-        return NextResponse.json(
-            { error: "Failed to remove saved post" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to remove saved post" }, { status: 500 });
     }
 }

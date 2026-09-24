@@ -1,9 +1,17 @@
 import { prisma } from "@/utils/prisma";
 import { NextResponse } from "next/server";
+import { authenticateAPI, AuthenticatedRequest } from "@/utils/apiAuth";
 
-export async function PUT(request: Request) {
+export async function PUT(
+    request: AuthenticatedRequest,
+    { params }: { params: Promise<{ id: string }> },
+) {
     try {
-        const { id, name } = await request.json();
+        const authError = await authenticateAPI(request, ["ADMIN", "AUTHOR"]);
+        if (authError) return authError;
+
+        const { name } = await request.json();
+        const { id } = await params;
 
         if (!id || !name) {
             return NextResponse.json({ error: "ID and name are required" }, { status: 400 });
@@ -21,13 +29,34 @@ export async function PUT(request: Request) {
     }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(
+    request: AuthenticatedRequest,
+    { params }: { params: Promise<{ id: string }> },
+) {
     try {
-        const url = new URL(request.url);
-        const id = url.pathname.split("/").pop();
+        const authError = await authenticateAPI(request, ["ADMIN"]);
+        if (authError) return authError;
+
+        const { id } = await params;
 
         if (!id) {
             return NextResponse.json({ error: "Category ID is required" }, { status: 400 });
+        }
+
+        const category = await prisma.category.findUnique({
+            where: { id },
+            include: { _count: { select: { posts: true } } },
+        });
+
+        if (!category) {
+            return NextResponse.json({ error: "Category not found" }, { status: 404 });
+        }
+
+        if (category._count.posts > 0) {
+            return NextResponse.json(
+                { error: "Cannot delete a category that still has posts" },
+                { status: 400 },
+            );
         }
 
         await prisma.category.delete({ where: { id } });
@@ -43,9 +72,12 @@ export async function DELETE(request: Request) {
 
 
 
-export async function GET(request: Request) {
+export async function GET(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
     try {
-        const { id } = await request.json();
+        const { id } = await params;
 
         if (!id) {
             return NextResponse.json({ error: "Category ID is required" }, { status: 400 });

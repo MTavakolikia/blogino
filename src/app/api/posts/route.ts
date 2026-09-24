@@ -1,40 +1,31 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/utils/prisma";
+import { authenticateAPI, AuthenticatedRequest } from "@/utils/apiAuth";
 
-export async function POST(request: Request) {
+export async function POST(request: AuthenticatedRequest) {
     try {
-        const { title, content, authorId, categoryId, image, images } = await request.json();
+        const authError = await authenticateAPI(request, ["ADMIN", "AUTHOR"]);
+        if (authError) return authError;
 
-        if (!title || !content || !authorId) {
+        const { title, content, categoryId, image, images } = await request.json();
+
+        if (!title || !content) {
             return NextResponse.json(
                 {
                     error: "Missing required fields",
-                    details: "Title, content, and authorId are required",
+                    details: "Title and content are required",
                 },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
-        const author = await prisma.user.findUnique({
-            where: { id: authorId },
-        });
-
-        if (!author) {
-            return NextResponse.json(
-                {
-                    error: "Author not found",
-                    details: "The specified author does not exist",
-                },
-                { status: 404 }
-            );
-        }
-
+        // Author is always the authenticated user — never trusted from the client.
         const post = await prisma.post.create({
             data: {
                 title,
                 content,
                 published: false,
-                authorId,
+                authorId: request.user!.id,
                 categoryId: categoryId || null,
                 images: Array.isArray(images) ? images : image ? [image] : [],
             },
@@ -48,7 +39,7 @@ export async function POST(request: Request) {
                 error: "Failed to create post",
                 details: error instanceof Error ? error.message : "Unknown error",
             },
-            { status: 500 }
+            { status: 500 },
         );
     }
 }
@@ -72,33 +63,18 @@ export async function GET(request: Request) {
                 where,
                 skip,
                 take: limit,
-                orderBy: {
-                    createdAt: "desc",
-                },
+                orderBy: { createdAt: "desc" },
                 include: {
-                    author: {
-                        select: {
-                            firstName: true,
-                            lastName: true,
-                        },
-                    },
-                    category: {
-                        select: {
-                            name: true,
-                        },
-                    },
-                    _count: {
-                        select: {
-                            likes: true,
-                        },
-                    },
+                    author: { select: { firstName: true, lastName: true } },
+                    category: { select: { name: true } },
+                    _count: { select: { likes: true } },
                 },
             }),
             prisma.post.count({ where }),
         ]);
 
         return NextResponse.json({
-            posts: posts.map(post => ({
+            posts: posts.map((post) => ({
                 ...post,
                 createdAt: post.createdAt.toISOString(),
                 updatedAt: post.updatedAt.toISOString(),
@@ -108,9 +84,6 @@ export async function GET(request: Request) {
         });
     } catch (error) {
         console.error("Error fetching posts:", error);
-        return NextResponse.json(
-            { error: "Failed to fetch posts" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 });
     }
 }

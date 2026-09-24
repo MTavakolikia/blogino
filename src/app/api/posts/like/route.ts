@@ -1,63 +1,38 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/utils/prisma";
-import { cookies } from "next/headers";
+import { authenticateAPI, AuthenticatedRequest } from "@/utils/apiAuth";
 
-export async function GET() {
+export async function GET(request: AuthenticatedRequest) {
     try {
-        const cookieStore = await cookies();
-        const userCookie = cookieStore.get("user");
+        const authError = await authenticateAPI(request);
+        if (authError) return authError;
 
-        if (!userCookie) {
-            return NextResponse.json(
-                { error: "User not authenticated" },
-                { status: 401 }
-            );
-        }
-
-        const user = JSON.parse(userCookie.value);
+        const user = request.user!;
 
         const likedPosts = await prisma.like.findMany({
-            where: {
-                userId: user.id
-            },
+            where: { userId: user.id },
             include: {
                 post: {
                     include: {
-                        author: {
-                            select: {
-                                firstName: true,
-                                lastName: true,
-                            },
-                        },
-                        category: {
-                            select: {
-                                name: true,
-                            },
-                        },
-                        _count: {
-                            select: {
-                                likes: true,
-                            },
-                        },
+                        author: { select: { firstName: true, lastName: true } },
+                        category: { select: { name: true } },
+                        _count: { select: { likes: true } },
                     },
                 },
             },
-            orderBy: {
-                createdAt: "desc"
-            }
+            orderBy: { createdAt: "desc" },
         });
 
         return NextResponse.json({
-            posts: likedPosts.map(lp => ({
+            posts: likedPosts.map((lp) => ({
                 ...lp.post,
-                _count: lp.post._count
-            }))
+                likedAt: lp.createdAt,
+                createdAt: lp.post.createdAt.toISOString(),
+                updatedAt: lp.post.updatedAt.toISOString(),
+            })),
         }, { status: 200 });
     } catch (error) {
         console.error("Error fetching liked posts:", error);
-        return NextResponse.json(
-            { error: "Failed to fetch liked posts" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to fetch liked posts" }, { status: 500 });
     }
 }
