@@ -1,92 +1,65 @@
 import DashboardStats from "@/components/dashboard/DashboardStats";
-import LineChartComponent from "@/components/dashboard/LineChartComponent";
+import EngagementChart from "@/components/dashboard/EngagementChart";
+import { getDashboardUser } from "@/utils/dashboardAuth";
 import { prisma } from "@/utils/prisma";
-import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
-async function getStats() {
-    const cookieStore = await cookies();
-    const userCookie = cookieStore.get("user");
+async function getStats(userId: string) {
+    const [activePosts, inactivePosts, categories, likes, comments, likesRows, commentsRows] =
+        await Promise.all([
+            prisma.post.count({ where: { published: true, authorId: userId } }),
+            prisma.post.count({ where: { published: false, authorId: userId } }),
+            prisma.category.count(),
+            // Likes *on this user's posts* (received, not given).
+            prisma.like.count({ where: { post: { authorId: userId } } }),
+            prisma.comment.count({ where: { userId } }),
+            prisma.like.findMany({
+                where: { post: { authorId: userId } },
+                select: { createdAt: true },
+            }),
+            prisma.comment.findMany({
+                where: { userId },
+                select: { createdAt: true },
+            }),
+        ]);
 
+    const countByMonth = (rows: { createdAt: Date }[]) => {
+        const counts = new Map<number, number>();
+        for (const row of rows) {
+            const month = new Date(row.createdAt).getMonth();
+            counts.set(month, (counts.get(month) || 0) + 1);
+        }
+        return counts;
+    };
 
-    if (!userCookie) throw new Error("User not authenticated");
-
-    const user = JSON.parse(userCookie.value);
-    const userId = user.id;
-
-    const [
-        activePosts,
-        inactivePosts,
-        categories,
-        likes,
-        comments,
-        likesByMonth,
-        commentsByMonth,
-    ] = await Promise.all([
-        prisma.post.count({ where: { published: true, authorId: userId } }),
-        prisma.post.count({ where: { published: false, authorId: userId } }),
-        prisma.category.count(),
-        prisma.like.count({ where: { userId } }),
-        prisma.comment.count({ where: { userId } }),
-        prisma.like.groupBy({
-            by: ["createdAt"],
-            _count: { id: true },
-            where: { userId },
-        }),
-        prisma.comment.groupBy({
-            by: ["createdAt"],
-            _count: { id: true },
-            where: { userId },
-        }),
-    ]);
+    const likesByMonth = countByMonth(likesRows);
+    const commentsByMonth = countByMonth(commentsRows);
 
     const engagementData = Array.from({ length: 12 }, (_, i) => {
         const month = new Date(0, i).toLocaleString("en-US", { month: "long" });
-
         return {
             month,
-            likes: likesByMonth.find((l) => new Date(l.createdAt).getMonth() === i)?._count.id || 0,
-            comments: commentsByMonth.find((c) => new Date(c.createdAt).getMonth() === i)?._count.id || 0,
-            activePosts,
-            inactivePosts,
+            likes: likesByMonth.get(i) || 0,
+            comments: commentsByMonth.get(i) || 0,
         };
     });
 
     return { activePosts, inactivePosts, categories, likes, comments, engagementData };
 }
 
-
-
 export default async function DashboardPage() {
-
-    const stats = await getStats();
+    const user = await getDashboardUser();
+    const stats = await getStats(user.id);
 
     return (
         <>
-            <DashboardStats stats={stats} />
-
-            <div className="col-span-2 mt-6">
-                <LineChartComponent
-                    title="User Engagement"
-                    description="Monthly Likes, Comments, Active and Inactive Posts"
-                    data={stats.engagementData}
-                    config={{
-                        likes: { label: "Likes", color: "hsl(var(--chart-1))" },
-                        comments: { label: "Comments", color: "hsl(var(--chart-2))" },
-                        activePosts: { label: "Active Posts", color: "green" },  // Active posts color
-                        inactivePosts: { label: "Inactive Posts", color: "orange" },  // Inactive posts color
-                    }}
-                    xAxisKey="month"
-                    lines={[
-                        { dataKey: "likes", color: "red" },
-                        { dataKey: "comments", color: "blue" },
-                        { dataKey: "activePosts", color: "green" },  // Active posts line
-                        { dataKey: "inactivePosts", color: "orange" },  // Inactive posts line
-                    ]}
-                    footerText="Increasing trend of user engagement and post status"
-                />
-            </div>
+            <DashboardStats
+                greeting={`${user.firstName} ${user.lastName}`}
+                role={user.role}
+                stats={stats}
+            />
+            <EngagementChart data={stats.engagementData} />
         </>
     );
 }

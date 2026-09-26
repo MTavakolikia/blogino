@@ -1,74 +1,58 @@
-import Link from "next/link";
-import { cookies } from "next/headers";
 import { prisma } from "@/utils/prisma";
-import { Button } from "@/components/ui/button";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import DashboardPostCard from "@/components/dashboard/posts/DashboardPostCard";
+import { getDashboardUser } from "@/utils/dashboardAuth";
+import { SectionHeading } from "@/components/root/SectionHeading";
+import DashboardPostList from "@/components/dashboard/posts/DashboardPostList";
 
 export const dynamic = "force-dynamic";
 
-async function getUserPosts() {
-    const cookieStore = await cookies();
-    const userCookie = cookieStore.get("user");
-    if (!userCookie) {
-        throw new Error("User not authenticated");
-    }
+export const metadata = { title: "My Posts" };
 
-    let user;
-    try {
-        user = JSON.parse(userCookie.value);
-
-        if (user.role === "ADMIN") {
-            return await prisma.post.findMany({
-                include: {
-                    author: {
-                        select: {
-                            firstName: true,
-                            lastName: true,
-                        },
-                    },
-                },
-                orderBy: { createdAt: "desc" },
-            });
-        }
-
-        return await prisma.post.findMany({
-            where: { authorId: user.id },
-            include: {
-                author: {
-                    select: {
-                        firstName: true,
-                        lastName: true,
-                    },
-                },
-            },
-            orderBy: { createdAt: "desc" },
-        });
-    } catch (error) {
-        console.error("Error fetching user posts:", error);
-        throw new Error("Invalid user cookie format");
-    }
+async function getUserPosts(userId: string, role: string) {
+    return prisma.post.findMany({
+        where: role === "ADMIN" ? {} : { authorId: userId },
+        orderBy: { createdAt: "desc" },
+        include: {
+            author: { select: { firstName: true, lastName: true } },
+            category: { select: { name: true } },
+            _count: { select: { likes: true, comments: true } },
+        },
+    });
 }
 
 export default async function PostsPage() {
-    const posts = await getUserPosts();
+    const user = await getDashboardUser(["ADMIN", "AUTHOR"]);
+    const posts = await getUserPosts(user.id, user.role);
+
+    const published = posts.filter((p) => p.published).length;
 
     return (
-        <ProtectedRoute requiredRoles={["ADMIN", "AUTHOR"]}>
-            <div className="container mx-auto px-6 py-8">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-3xl font-bold">Posts Management</h1>
-                    <Link href="/dashboard/posts/create">
-                        <Button>Create New Post</Button>
-                    </Link>
-                </div>
+        <div className="space-y-6">
+            <SectionHeading
+                eyebrow="Writing"
+                title="Posts"
+                description={
+                    user.role === "ADMIN"
+                        ? "All posts on the blog. You can manage any of them."
+                        : `Everything you've written — ${published} published, ${posts.length - published} in drafts.`
+                }
+            />
 
-                <div className="grid gap-4">
-                    {posts.map((post) => (
-                        <DashboardPostCard key={post.id} post={post} />
-                    ))}
-                </div>
-            </div>
-        </ProtectedRoute>
+            <DashboardPostList
+                currentUserId={user.id}
+                currentRole={user.role}
+                posts={posts.map((p) => ({
+                    id: p.id,
+                    title: p.title,
+                    published: p.published,
+                    createdAt: p.createdAt.toISOString(),
+                    images: p.images,
+                    authorId: p.authorId,
+                    author: p.author,
+                    category: p.category,
+                    likes: p._count.likes,
+                    comments: p._count.comments,
+                }))}
+            />
+        </div>
     );
 }
