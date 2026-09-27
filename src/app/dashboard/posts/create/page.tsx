@@ -1,10 +1,10 @@
-import CreatePostForm from "@/components/dashboard/PostForm"
+import { getDashboardUser } from "@/utils/dashboardAuth";
+import PostFormPage from "@/components/dashboard/posts/PostFormPage";
 
-function page() {
-    return (
-        <CreatePostForm />
+export const metadata = { title: "New post" };
 
-    )
+export default async function CreatePostPage() {
+    await getDashboardUser(["ADMIN", "AUTHOR"]);
+
+    return <PostFormPage mode="create" />;
 }
-
-export default page
