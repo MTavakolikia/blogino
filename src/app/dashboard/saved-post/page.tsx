@@ -1,150 +1,115 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import * as React from "react";
+import Link from "next/link";
 import axios from "axios";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Bookmark, Compass } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookmarkX, BookmarkCheck } from "lucide-react";
-import Link from "next/link";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import PostExcerpt from "@/components/posts/PostExcerpt";
+import { ActivityPostCard, type ActivityPost } from "@/components/dashboard/activity/ActivityPostCard";
 
-interface Post {
-    id: string;
-    title: string;
-    content: string;
-    published: boolean;
-    images: string[];
-    authorId: string;
-    categoryId: string | null;
-    createdAt: string;
-    updatedAt: string;
-    category: { name: string };
-    author: { firstName: string; lastName: string };
-}
+const container = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.05 } },
+};
+const item = {
+    hidden: { opacity: 0, y: 12 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
+};
 
 export default function SavedPostPage() {
-    const [posts, setPosts] = useState<Post[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [posts, setPosts] = React.useState<ActivityPost[]>([]);
+    const [loading, setLoading] = React.useState(true);
+    const [removing, setRemoving] = React.useState<string | null>(null);
 
-    useEffect(() => {
-        fetchSavedPosts();
-    }, []);
-
-    const fetchSavedPosts = async () => {
+    const fetchSaved = async () => {
         try {
-            const response = await axios.get("/api/posts/saved");
-            setPosts(response.data);
-        } catch (error) {
-            console.error("Error fetching saved posts:", error);
-            toast.error("Failed to fetch saved posts");
+            const res = await axios.get("/api/posts/saved");
+            setPosts(res.data);
+        } catch {
+            toast.error("Failed to load saved posts");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleUnsavePost = async (postId: string) => {
+    React.useEffect(() => {
+        fetchSaved();
+    }, []);
+
+    const handleRemove = async (postId: string) => {
+        setRemoving(postId);
         try {
-            await axios.delete("/api/posts/saved", {
-                data: { postId }
-            });
-            setPosts(posts.filter(post => post.id !== postId));
-            toast.success("Post removed from saved posts");
-        } catch (error) {
-            console.error("Error removing saved post:", error);
-            toast.error("Failed to remove post from saved posts");
+            await axios.delete("/api/posts/saved", { data: { postId } });
+            setPosts((prev) => prev.filter((p) => p.id !== postId));
+            toast.success("Removed from saved posts");
+        } catch {
+            toast.error("Couldn't remove the post");
+        } finally {
+            setRemoving(null);
         }
     };
 
     if (loading) {
         return (
-            <div className="container mx-auto px-6 py-8">
-                <div className="grid gap-4">
-                    {[1, 2, 3].map((i) => (
-                        <Skeleton key={i} className="w-full h-32" />
-                    ))}
-                </div>
+            <div className="space-y-4">
+                <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
+                {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-32 w-full rounded-2xl" />
+                ))}
             </div>
         );
     }
 
     return (
-        <ProtectedRoute>
-            <div className="container mx-auto px-6 py-8">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-3xl font-bold">Saved Posts</h1>
-                    <p className="text-muted-foreground">
-                        {posts.length} {posts.length === 1 ? 'post' : 'posts'} saved
-                    </p>
-                </div>
-
-                {posts.length === 0 ? (
-                    <div className="text-center py-12">
-                        <BookmarkCheck className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                        <h2 className="text-xl font-semibold mb-2">No saved posts yet</h2>
-                        <p className="text-muted-foreground mb-4">
-                            Posts you save will appear here for easy access later.
-                        </p>
-                        <Link href="/">
-                            <Button>Browse Posts</Button>
-                        </Link>
-                    </div>
-                ) : (
-                    <div className="grid gap-4">
-                        {posts.map((post) => (
-                            <motion.div
-                                key={post.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                            >
-                                <Card className="hover:shadow-lg transition-shadow">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <div>
-                                            <h2 className="text-xl font-semibold">
-                                                <Link href={`/dashboard/posts/${post.id}`} className="hover:text-primary">
-                                                    {post.title}
-                                                </Link>
-                                            </h2>
-                                            <p className="text-sm text-muted-foreground">
-                                                By {post.author.firstName} {post.author.lastName} • {post.category?.name}
-                                            </p>
-                                        </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleUnsavePost(post.id)}
-                                            className="text-muted-foreground hover:text-destructive"
-                                        >
-                                            <BookmarkX className="h-5 w-5" />
-                                        </Button>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-muted-foreground mb-4">
-                                            <PostExcerpt content={post.content} />
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-sm text-muted-foreground">
-                                                Saved on {new Date(post.createdAt).toLocaleDateString('en-US', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric'
-                                                })}
-                                            </p>
-                                            <Link href={`/dashboard/posts/${post.id}`}>
-                                                <Button variant="outline">Read More</Button>
-                                            </Link>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        ))}
-                    </div>
-                )}
+        <div className="space-y-6">
+            <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+                    Library
+                </p>
+                <h1 className="mt-1 text-2xl font-semibold tracking-tight">Saved posts</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                    {posts.length === 0
+                        ? "Bookmark articles to read later."
+                        : `${posts.length} article${posts.length === 1 ? "" : "s"} saved for later.`}
+                </p>
             </div>
-        </ProtectedRoute>
+
+            {posts.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-border bg-card/50 py-16 text-center">
+                    <Bookmark className="mx-auto h-10 w-10 text-muted-foreground/40" />
+                    <h2 className="mt-4 font-semibold">Nothing saved yet</h2>
+                    <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
+                        Tap the bookmark icon on any article and it will show up here.
+                    </p>
+                    <Button asChild className="mt-6">
+                        <Link href="/post">
+                            <Compass className="h-4 w-4" /> Browse articles
+                        </Link>
+                    </Button>
+                </div>
+            ) : (
+                <motion.div
+                    variants={container}
+                    initial="hidden"
+                    animate="show"
+                    className="grid gap-4 lg:grid-cols-2"
+                >
+                    {posts.map((post) => (
+                        <motion.div key={post.id} variants={item}>
+                            <ActivityPostCard
+                                post={post}
+                                mode="saved"
+                                onRemove={handleRemove}
+                                removing={removing === post.id}
+                            />
+                        </motion.div>
+                    ))}
+                </motion.div>
+            )}
+        </div>
     );
 }
