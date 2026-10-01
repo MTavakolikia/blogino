@@ -1,110 +1,150 @@
 import { prisma } from "@/utils/prisma";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, User, Calendar, Shield, UserCog } from "lucide-react";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { getDashboardUser } from "@/utils/dashboardAuth";
 import UserActions from "./UserActions";
 import UserFormDialog from "@/components/dashboard/user-management/UserFormDialog";
 
 export const dynamic = "force-dynamic";
 
-async function getUsers() {
-    try {
-        return await prisma.user.findMany({
-            orderBy: { createdAt: "desc" },
+export const metadata = { title: "Users" };
 
-            select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true,
-                role: true,
-                profilePic: true,
-                createdAt: true,
-                active: true,
-                _count: {
-                    select: {
-                        posts: true,
-                    },
-                },
-            },
-        });
-    } catch (error) {
-        console.error("Error fetching users:", error);
-        throw new Error("Failed to fetch users");
-    }
+async function getUsers() {
+    return prisma.user.findMany({
+        orderBy: { createdAt: "desc" },
+        select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            role: true,
+            profilePic: true,
+            createdAt: true,
+            active: true,
+            _count: { select: { posts: true } },
+        },
+    });
 }
 
-
-export default async function UserManagement() {
+export default async function UserManagementPage() {
+    await getDashboardUser(["ADMIN"]);
     const users = await getUsers();
+
+    const authors = users.filter((u) => u.role === "AUTHOR").length;
+    const inactive = users.filter((u) => !u.active).length;
+
     return (
-        <ProtectedRoute requiredRoles={["ADMIN"]}>
-            <div className="container mx-auto px-6 py-8">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-3xl font-bold flex items-center gap-2">
-                        <UserCog className="w-8 h-8 text-primary" />
-                        User Management
+        <div className="space-y-6">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+                        Administration
+                    </p>
+                    <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+                        User management
                     </h1>
-                    {/* <Button>
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Add User
-                    </Button> */}
-                    <UserFormDialog mode="create" />
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        {users.length} members · {authors} authors
+                        {inactive > 0 && ` · ${inactive} deactivated`}
+                    </p>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {users.map((user) => (
-                        <Card key={user.id} className="shadow-md hover:shadow-lg transition">
-                            <CardHeader className="flex flex-row items-center gap-4">
-                                <Avatar className={`w-16 h-16 ${user.active ? "border-4 border-green-300" : "border-4 border-red-500"}`}>
-                                    <AvatarImage
-                                        src={user.profilePic || "/profile.png"}
-                                        alt={`${user.firstName} ${user.lastName}`}
-                                    />
-                                    <AvatarFallback>
-                                        {user.firstName[0]}
-                                        {user.lastName[0]}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                    <CardTitle className="text-lg">
-                                        {user.firstName} {user.lastName}
-                                    </CardTitle>
-                                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                        <Shield className="w-4 h-4" />
-                                        {user.role}
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="my-2">
-                                    <p className="flex items-center gap-2 text-sm">
-                                        <Mail className="w-4 h-4" />
-                                        {user.email}
-                                    </p>
-                                    <p className="flex items-center gap-2 text-sm">
-                                        <Calendar className="w-4 h-4" />
-                                        Joined: {new Date(user.createdAt).toLocaleDateString('en-US', {
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric'
-                                        })}
-                                    </p>
-                                    <p className="flex items-center gap-2 text-sm">
-                                        <User className="w-4 h-4" />
-                                        Posts: {user._count.posts}
-                                    </p>
-                                    <div className="mt-6">
-                                        <UserActions user={user} />
-
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+                <UserFormDialog mode="create" />
             </div>
-        </ProtectedRoute>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {users.map((user) => (
+                    <UserManagementCard key={user.id} user={user} />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function UserManagementCard({
+    user,
+}: {
+    user: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        role: string;
+        profilePic: string | null;
+        createdAt: Date;
+        active: boolean;
+        _count: { posts: number };
+    };
+}) {
+    const roleStyles: Record<string, string> = {
+        ADMIN: "bg-primary/10 text-primary",
+        AUTHOR: "bg-chart-2/10 text-chart-2",
+        USER: "bg-muted/60 text-muted-foreground",
+    };
+
+    return (
+        <div className="flex flex-col rounded-2xl border border-border/70 bg-card p-5 shadow-sm">
+            <div className="flex items-center gap-3">
+                <div className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {user.profilePic ? (
+                        <img
+                            src={user.profilePic}
+                            alt={`${user.firstName} ${user.lastName}`}
+                            className="h-12 w-12 rounded-xl border border-border/60 object-cover"
+                        />
+                    ) : (
+                        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-sm font-semibold text-primary">
+                            {user.firstName[0]}
+                            {user.lastName[0]}
+                        </span>
+                    )}
+                    <span
+                        className={`absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-card ${
+                            user.active ? "bg-green-500" : "bg-red-500"
+                        }`}
+                        title={user.active ? "Active" : "Deactivated"}
+                    />
+                </div>
+                <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold tracking-tight">
+                        {user.firstName} {user.lastName}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                </div>
+                <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                        roleStyles[user.role] ?? roleStyles.USER
+                    }`}
+                >
+                    {user.role}
+                </span>
+            </div>
+
+            <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
+                <span>
+                    Joined{" "}
+                    {new Date(user.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                    })}
+                </span>
+                <span>{user._count.posts} posts</span>
+            </div>
+
+            <div className="mt-4 border-t border-border/60 pt-4">
+                <UserActions
+                    user={{
+                        id: user.id,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        email: user.email,
+                        role: user.role,
+                        profilePic: user.profilePic,
+                        createdAt: user.createdAt.toISOString(),
+                        active: user.active,
+                        _count: user._count,
+                    }}
+                />
+            </div>
+        </div>
     );
 }
