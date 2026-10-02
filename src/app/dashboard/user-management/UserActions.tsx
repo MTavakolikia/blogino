@@ -18,7 +18,7 @@ export interface User {
     role: string;
     profilePic: string | null;
     bio?: string;
-    createdAt: Date;
+    createdAt: string;
     active: boolean;
     _count?: {
         posts: number;
@@ -67,16 +67,15 @@ export default function UserActions({ user }: UserActionsProps) {
                 <UserProfileDialog user={user} />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                disabled={isLoading}
-                            >
-                                <Shield className="h-2 w-2" />
-                            </Button>
-                        </DropdownMenuTrigger>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            disabled={isLoading}
+                            aria-label="User actions"
+                        >
+                            <Shield className="h-3.5 w-3.5" />
+                        </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleRoleChange("ADMIN")}>
