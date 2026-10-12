@@ -49,7 +49,7 @@ export function NavMain({
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title} className={`p-0 ${isActive ? "bg-cyan-600" : ""}`}>
+                  <SidebarMenuButton tooltip={item.title} className={`p-0 ${isActive ? "bg-primary/10 text-primary" : ""}`}>
                     <Link href={item.url} className={`flex  items-center w-full h-full gap-2 p-2 group-data-[collapsible=icon]:p-0`}>
                       <div className="flex items-center justify-center w-4 h-4">
                         {item.icon && <item.icon size={16} />}

@@ -128,9 +128,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
-                <Link href={routes.home} className="flex mt-1 items-center justify-center text-2xl gap-2 bg-gradient-to-r from-cyan-100 to-cyan-500 bg-clip-text text-transparent">
-                    <Rss color="white" size={26} />
-                    <span>Blogino</span>
+                <Link href={routes.home} className="mt-1 flex items-center justify-center gap-2">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <Rss size={18} />
+                    </span>
+                    <span className="text-lg font-semibold tracking-tighter text-foreground">
+                        Blogino
+                    </span>
                 </Link>
             </SidebarHeader>
             <SidebarContent>
