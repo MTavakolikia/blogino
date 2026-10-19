@@ -65,7 +65,7 @@ export default function UserFormDialog({ mode, user }: UserFormDialogProps) {
         role: z.enum(["ADMIN", "AUTHOR", "USER"]),
         bio: z.string().optional(),
         profilePic: z.string().optional(),
-        active: z.boolean().default(true),
+        active: z.boolean(),
         password: z.string().min(6, "Password must be at least 6 characters").optional(),
         confirmPassword: z.string().optional(),
     }).refine((data) => {
