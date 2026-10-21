@@ -91,14 +91,14 @@ export default function UserProfileDialog({ user }: UserActionsProps) {
                                         </div>
                                         <div className="space-y-2">
                                             <Label>Join Date</Label>
-                                            <Input
-                                                value={user.createdAt.toLocaleDateString('en-US', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric'
-                                                })}
-                                                readOnly
-                                            />
+                                        <Input
+                                            value={new Date(user.createdAt).toLocaleDateString("en-US", {
+                                                year: "numeric",
+                                                month: "long",
+                                                day: "numeric"
+                                            })}
+                                            readOnly
+                                        />
                                         </div>
                                     </div>
 
