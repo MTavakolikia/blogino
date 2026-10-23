@@ -1,38 +1,74 @@
-import Link from 'next/link'
-import React from 'react'
-import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import Link from "next/link";
+import { Rss } from "lucide-react";
 
-function Footer() {
+const COLUMNS = [
+    {
+        title: "Explore",
+        links: [
+            { href: "/", label: "Home" },
+            { href: "/post", label: "All articles" },
+            { href: "/about-me", label: "About" },
+            { href: "/contact-me", label: "Contact" },
+        ],
+    },
+    {
+        title: "For writers",
+        links: [
+            { href: "/register", label: "Create account" },
+            { href: "/login", label: "Log in" },
+            { href: "/dashboard/posts/create", label: "Write a post" },
+            { href: "/dashboard", label: "Dashboard" },
+        ],
+    },
+];
+
+export default function Footer() {
+    const year = new Date().getFullYear();
     return (
-        <footer className="mt-12 bg-gray-900 text-white py-10">
-            <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
-                    <h2 className="text-xl font-bold mb-4">About Us</h2>
-                    <p className="text-gray-400 text-sm">Stay updated with the latest news and insights from our blog.</p>
+        <footer className="mt-8 border-t border-border/70 bg-muted/20">
+            <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-10 md:grid-cols-4 md:px-6 md:py-14">
+                <div className="col-span-2 md:col-span-2">
+                    <Link href="/" className="flex items-center gap-2">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                            <Rss className="h-5 w-5" />
+                        </span>
+                        <span className="text-lg font-semibold tracking-tighter">
+                            Blogino
+                        </span>
+                    </Link>
+                    <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
+                        In-depth articles on technology, programming, design,
+                        business and science — written to be read.
+                    </p>
                 </div>
-                <div>
-                    <h2 className="text-xl font-bold mb-4">Quick Links</h2>
-                    <ul className="text-gray-400 text-sm space-y-2">
-                        <li><Link href="#" className="hover:text-white">Home</Link></li>
-                        <li><Link href="#" className="hover:text-white">Categories</Link></li>
-                        <li><Link href="#" className="hover:text-white">Contact Us</Link></li>
-                        <li><Link href="#" className="hover:text-white">Privacy Policy</Link></li>
-                    </ul>
-                </div>
-                <div>
-                    <h2 className="text-xl font-bold mb-4">Follow Us</h2>
-                    <div className="flex space-x-4">
-                        <Link href="#" className="text-gray-400 hover:text-white"><Facebook size={20} /></Link>
-                        <Link href="#" className="text-gray-400 hover:text-white"><Twitter size={20} /></Link>
-                        <Link href="#" className="text-gray-400 hover:text-white"><Instagram size={20} /></Link>
-                        <Link href="#" className="text-gray-400 hover:text-white"><Linkedin size={20} /></Link>
-                    </div>
-                </div>
-            </div>
-            <div className="mt-6 border-t border-gray-700 text-center pt-4 text-gray-400 text-sm">
-                © {new Date().getFullYear()} Blog. All rights reserved.
-            </div>
-        </footer>)
-}
 
-export default Footer
+                {COLUMNS.map((col) => (
+                    <div key={col.title}>
+                        <h3 className="text-sm font-semibold text-foreground">
+                            {col.title}
+                        </h3>
+                        <ul className="mt-4 space-y-2.5">
+                            {col.links.map((link) => (
+                                <li key={link.label}>
+                                    <Link
+                                        href={link.href}
+                                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                    >
+                                        {link.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
+            </div>
+
+            <div className="border-t border-border/60">
+                <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 text-xs text-muted-foreground sm:flex-row md:px-6">
+                    <p>© {year} Blogino. All rights reserved.</p>
+                    <p>Built with Next.js &amp; Magic UI.</p>
+                </div>
+            </div>
+        </footer>
+    );
+}
