@@ -1,68 +1,113 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import Link from "next/link";
-import PostExcerpt from "@/components/posts/PostExcerpt";
+"use client";
 
-export type postType = {
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { Calendar, Heart } from "lucide-react";
+
+import PostExcerpt from "@/components/posts/PostExcerpt";
+import { cn } from "@/lib/utils";
+
+export interface PostCardPost {
     id: string;
     title: string;
     content: string;
-    authorId?: string;
-    createdAt: string | Date;
-    updatedAt?: string | Date;
-    published: boolean;
     images: string[];
+    createdAt: string | Date;
+    category?: { name: string } | null;
+    author?: { firstName: string; lastName: string } | null;
+    _count?: { likes: number };
+}
 
-};
+export default function PostCard({
+    post,
+    index = 0,
+    className,
+}: {
+    post: PostCardPost;
+    index?: number;
+    className?: string;
+}) {
+    const cover = post.images?.[0];
+    const author = post.author
+        ? `${post.author.firstName} ${post.author.lastName}`
+        : null;
+    const date = new Date(post.createdAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
 
-interface PostProps {
-    postDetail: postType
-};
-
-export default function PostCard({ postDetail }: PostProps) {
     return (
-        <Card className="max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-            <Link href={`/post/${postDetail.id}`}>
-                <Image
-                    className="rounded-t-lg w-full h-52 object-cover"
-                    src={"/images/default-image.png"}
-                    // src={postDetail?.images?.length > 0 ? postDetail?.images[0] : "/images/default-image.png"}
-                    alt={postDetail.title}
-                    width={400}
-                    height={250}
-                />
+        <motion.article
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.5, delay: (index % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
+            className={cn(
+                "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card transition-colors hover:border-primary/40",
+                className,
+            )}
+        >
+            {/* Cover */}
+            <Link
+                href={`/post/${post.id}`}
+                className="relative block aspect-[16/10] w-full overflow-hidden bg-muted"
+            >
+                {cover ? (
+                    <Image
+                        src={cover}
+                        alt={post.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center text-4xl text-muted-foreground/40">
+                        ✦
+                    </div>
+                )}
+                {post.category && (
+                    <span className="absolute left-3 top-3 rounded-full bg-background/85 px-2.5 py-1 text-xs font-medium text-foreground backdrop-blur-sm">
+                        {post.category.name}
+                    </span>
+                )}
             </Link>
-            <CardContent className="p-5">
-                <Link href={`/post/${postDetail.id}`}>
-                    <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        {postDetail.title}
-                    </h5>
-                </Link>
-                <div className="mb-3 font-normal text-gray-700 dark:text-gray-400 line-clamp-2">
-                    <PostExcerpt content={postDetail.content} />
+
+            {/* Body */}
+            <div className="flex flex-1 flex-col gap-3 p-5">
+                <h3 className="line-clamp-2 text-lg font-semibold leading-snug tracking-tight text-foreground">
+                    <Link
+                        href={`/post/${post.id}`}
+                        className="transition-colors group-hover:text-primary"
+                    >
+                        {post.title}
+                    </Link>
+                </h3>
+
+                <div className="line-clamp-3 flex-1 text-sm leading-relaxed text-muted-foreground">
+                    <PostExcerpt content={post.content} />
                 </div>
-                <Link href={`/post/${postDetail.id}`}>
-                    <Button className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        Read more
-                        <svg
-                            className="rtl:rotate-180 w-3.5 h-3.5 ms-2"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 14 10"
-                        >
-                            <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M1 5h12m0 0L9 1m4 4L9 9"
-                            />
-                        </svg>
-                    </Button>
-                </Link>
-            </CardContent>
-        </Card>
+
+                <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
+                    <div className="flex min-w-0 items-center gap-2">
+                        {author && (
+                            <span className="truncate font-medium text-foreground/80">
+                                {author}
+                            </span>
+                        )}
+                        {author && <span className="shrink-0">•</span>}
+                        <span className="flex shrink-0 items-center gap-1">
+                            <Calendar className="h-3.5 w-3.5" />
+                            {date}
+                        </span>
+                    </div>
+                    <span className="flex shrink-0 items-center gap-1">
+                        <Heart className="h-3.5 w-3.5" />
+                        {post._count?.likes ?? 0}
+                    </span>
+                </div>
+            </div>
+        </motion.article>
     );
 }
