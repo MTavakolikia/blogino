@@ -1,93 +1,215 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
+/*
+  Theme model (no pre-hydration script needed):
+  - no class on <html>   -> follows the OS preference (prefers-color-scheme)
+  - class="light"        -> forced light
+  - class="dark"         -> forced dark
+  An explicit choice is restored server-side from the "theme" cookie
+  (see the layouts), so there is no flash of the wrong theme and no
+  <script> rendered by React.
+*/
+@custom-variant dark {
+  &:where(.dark, .dark *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not(.light) *, :root:not(.light)) {
+      @slot;
+    }
+  }
 }
 
 @layer base {
   :root {
+    color-scheme: light;
     --background: 0 0% 100%;
-    --foreground: 20 14.3% 4.1%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 20 14.3% 4.1%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 20 14.3% 4.1%;
-    --primary: 180 100% 40%;
-    /* Cyan */
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 190 95% 32%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 180 30% 90%;
-    --secondary-foreground: 180 100% 20%;
-    --muted: 180 20% 95%;
-    --muted-foreground: 180 10% 40%;
-    --accent: 180 40% 85%;
-    --accent-foreground: 180 100% 20%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 180 20% 80%;
-    --input: 180 20% 80%;
-    --ring: 180 100% 40%;
-    --radius: 0.5rem;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 190 95% 32%;
+    --radius: 0.625rem;
+    --chart-1: 190 95% 40%;
+    --chart-2: 220 90% 60%;
+    --chart-3: 340 80% 60%;
+    --chart-4: 40 90% 55%;
+    --chart-5: 280 70% 60%;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-border: 240 5.9% 90%;
+    --sidebar-ring: 190 95% 32%;
   }
 
   .dark {
-    --background: 20 14.3% 4.1%;
-    --foreground: 60 9.1% 97.8%;
-    --card: 20 14.3% 4.1%;
-    --card-foreground: 60 9.1% 97.8%;
-    --popover: 20 14.3% 4.1%;
-    --popover-foreground: 60 9.1% 97.8%;
-    --primary: 180 100% 40%;
-    /* Cyan */
+    color-scheme: dark;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 8% 6%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 8% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 190 95% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 180 30% 15%;
-    --secondary-foreground: 180 100% 80%;
-    --muted: 180 20% 20%;
-    --muted-foreground: 180 10% 60%;
-    --accent: 180 40% 25%;
-    --accent-foreground: 180 100% 80%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 180 20% 30%;
-    --input: 180 20% 30%;
-    --ring: 180 100% 40%;
-    --sidebar-background: 240 5.9% 10%;
+    --secondary: 240 4% 14%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 4% 14%;
+    --muted-foreground: 240 5% 64%;
+    --accent: 240 4% 14%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 4% 16%;
+    --input: 240 4% 18%;
+    --ring: 190 95% 42%;
+    --chart-1: 190 95% 50%;
+    --chart-2: 220 90% 70%;
+    --chart-3: 340 80% 70%;
+    --chart-4: 40 90% 65%;
+    --chart-5: 280 70% 70%;
+    --sidebar-background: 240 8% 6%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary: 190 95% 42%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent: 240 4% 14%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-border: 240 4% 16%;
+    --sidebar-ring: 190 95% 42%;
+  }
+
+  /* System dark mode: OS preference dark, and the user hasn't forced light. */
+  @media (prefers-color-scheme: dark) {
+    :root:not(.light) {
+      color-scheme: dark;
+      --background: 240 10% 3.9%;
+      --foreground: 0 0% 98%;
+      --card: 240 8% 6%;
+      --card-foreground: 0 0% 98%;
+      --popover: 240 8% 6%;
+      --popover-foreground: 0 0% 98%;
+      --primary: 190 95% 42%;
+      --primary-foreground: 0 0% 100%;
+      --secondary: 240 4% 14%;
+      --secondary-foreground: 0 0% 98%;
+      --muted: 240 4% 14%;
+      --muted-foreground: 240 5% 64%;
+      --accent: 240 4% 14%;
+      --accent-foreground: 0 0% 98%;
+      --destructive: 0 62.8% 50.6%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 240 4% 16%;
+      --input: 240 4% 18%;
+      --ring: 190 95% 42%;
+      --chart-1: 190 95% 50%;
+      --chart-2: 220 90% 70%;
+      --chart-3: 340 80% 70%;
+      --chart-4: 40 90% 65%;
+      --chart-5: 280 70% 70%;
+      --sidebar-background: 240 8% 6%;
+      --sidebar-foreground: 240 4.8% 95.9%;
+      --sidebar-primary: 190 95% 42%;
+      --sidebar-primary-foreground: 0 0% 100%;
+      --sidebar-accent: 240 4% 14%;
+      --sidebar-accent-foreground: 240 4.8% 95.9%;
+      --sidebar-border: 240 4% 16%;
+      --sidebar-ring: 190 95% 42%;
+    }
   }
 }
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
   }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-foreground;
+  }
+}
+
+/* Refined scrollbar */
+@layer utilities {
+  @keyframes shimmer {
+    0% {
+      transform: translateX(0) translateY(0) scale(1);
+    }
+    100% {
+      transform: translateX(calc(200% + var(--shimmer-z))) translateY(0) scale(1);
+    }
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* TipTap / prose content refinements for post body */
+.prose :where(a):not(:where(.not-prose *)) {
+  @apply text-primary no-underline hover:underline underline-offset-4;
+}
+.prose :where(h2, h3, h4):not(:where(.not-prose *)) {
+  @apply font-semibold tracking-tight scroll-mt-24;
+}
+.prose :where(img):not(:where(.not-prose *)) {
+  @apply rounded-xl;
+}
+.prose :where(blockquote):not(:where(.not-prose *)) {
+  @apply border-l-primary/40 pl-4 italic text-muted-foreground;
+}
+.prose :where(code):not(:where(.not-prose *, pre *)) {
+  @apply rounded-md bg-muted px-1.5 py-0.5 text-sm font-mono;
+}
+.prose :where(pre):not(:where(.not-prose *)) {
+  @apply rounded-xl border border-border bg-muted/50 p-4 overflow-x-auto text-sm;
+}
+.prose :where(ul, ol):not(:where(.not-prose *)) {
+  @apply space-y-2;
 }

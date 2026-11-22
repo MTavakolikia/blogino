@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { BookmarkCheck, Cog, FilePlus, Heart, LayoutDashboard, LogIn, LogOut, StickyNote, User, UserCheck, UserRoundCog } from "lucide-react"
+import { BookmarkCheck, Cog, FilePlus, Heart, LayoutDashboard, LogIn, StickyNote, User, UserCheck, UserRoundCog } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -15,9 +15,10 @@ import {
 import Link from "next/link"
 import useUserStore from "@/store/userStore"
 import routes from "@/config/routes"
+import { SignOutButton } from "./SignOutButton"
 
 export function UserDropDownButton() {
-    const { user, clearUser } = useUserStore();
+    const { user } = useUserStore();
 
     return (
 
@@ -83,10 +84,7 @@ export function UserDropDownButton() {
 
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>
-                                <span onClick={clearUser} className="cursor-pointer flex items-center gap-2">
-                                    <LogOut size={18} />
-                                    Log out
-                                </span>
+                                <SignOutButton className="flex items-center gap-2" />
                             </DropdownMenuItem>
                         </>
                         :
