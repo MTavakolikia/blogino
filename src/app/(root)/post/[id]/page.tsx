@@ -1,4 +1,7 @@
 import { prisma } from "@/utils/prisma";
+import { withDatabaseFallback } from "@/utils/db-errors";
+import { readingTime } from "@/utils/posts";
+import DatabaseUnavailable from "@/components/root/DatabaseUnavailable";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -17,11 +20,6 @@ import { TextReveal } from "@/components/magicui/text-reveal";
 
 export const dynamic = "force-dynamic";
 
-function readingTime(content: string) {
-    const words = content.replace(/<[^>]*>/g, " ").trim().split(/\s+/).length;
-    return Math.max(1, Math.round(words / 200));
-}
-
 export default async function SinglePostPage({
     params,
 }: {
@@ -29,14 +27,29 @@ export default async function SinglePostPage({
 }) {
     const { id } = await params;
 
-    const post = await prisma.post.findFirst({
-        where: { id, published: true },
-        include: {
-            author: { select: { firstName: true, lastName: true, profilePic: true } },
-            category: { select: { id: true, name: true } },
-            _count: { select: { likes: true } },
-        },
-    });
+    const loadPost = () =>
+        prisma.post.findFirst({
+            where: { id, published: true },
+            include: {
+                author: {
+                    select: { firstName: true, lastName: true, profilePic: true },
+                },
+                category: { select: { id: true, name: true } },
+                _count: { select: { likes: true } },
+            },
+        });
+
+    const post = await withDatabaseFallback<
+        "unavailable" | Awaited<ReturnType<typeof loadPost>>
+    >("post:findFirst", "unavailable", loadPost);
+
+    if (post === "unavailable") {
+        return (
+            <div className="mx-auto max-w-3xl px-4 py-16">
+                <DatabaseUnavailable />
+            </div>
+        );
+    }
 
     if (!post) notFound();
 

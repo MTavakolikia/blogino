@@ -1,45 +1,28 @@
 import { prisma } from "@/utils/prisma";
+import { withDatabaseFallback } from "@/utils/db-errors";
+import DatabaseUnavailable from "@/components/root/DatabaseUnavailable";
 import Link from "next/link";
 import PostsPageClient from "@/components/posts/PostsPageClient";
-import type { PostCardPost } from "@/components/posts/PostCard";
 import type { CategoryOption } from "@/components/posts/CategoryFilter";
+import { normalizePage, toPostCard, totalPages } from "@/utils/posts";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 
 export const dynamic = "force-dynamic";
 
 const POSTS_PER_PAGE = 9;
 
-type PostRow = {
-    id: string;
-    title: string;
-    content: string;
-    images: string[];
-    createdAt: Date;
-    author: { firstName: string; lastName: string };
-    category: { name: string } | null;
-    _count: { likes: number };
-};
+async function getCategories(): Promise<CategoryOption[] | null> {
+    const categories = await withDatabaseFallback("post:getCategories", null, () =>
+        prisma.category.findMany({
+            orderBy: { name: "asc" },
+            include: {
+                _count: { select: { posts: { where: { published: true } } } },
+            },
+        }),
+    );
 
-function toCard(p: PostRow): PostCardPost {
-    return {
-        id: p.id,
-        title: p.title,
-        content: p.content,
-        images: p.images,
-        createdAt: p.createdAt.toISOString(),
-        author: p.author,
-        category: p.category,
-        _count: p._count,
-    };
-}
+    if (!categories) return null;
 
-async function getCategories(): Promise<CategoryOption[]> {
-    const categories = await prisma.category.findMany({
-        orderBy: { name: "asc" },
-        include: {
-            _count: { select: { posts: { where: { published: true } } } },
-        },
-    });
     return categories.map((c) => ({
         id: c.id,
         name: c.name,
@@ -55,41 +38,53 @@ async function getPosts(page: number, categoryId: string | null) {
     };
 
     const [posts, total] = await Promise.all([
-        prisma.post.findMany({
-            where,
-            skip,
-            take: POSTS_PER_PAGE,
-            orderBy: { createdAt: "desc" },
-            include: {
-                author: { select: { firstName: true, lastName: true } },
-                category: { select: { name: true } },
-                _count: { select: { likes: true } },
-            },
-        }),
-        prisma.post.count({ where }),
+        withDatabaseFallback("post:findMany", null, () =>
+            prisma.post.findMany({
+                where,
+                skip,
+                take: POSTS_PER_PAGE,
+                orderBy: { createdAt: "desc" },
+                include: {
+                    author: { select: { firstName: true, lastName: true } },
+                    category: { select: { name: true } },
+                    _count: { select: { likes: true } },
+                },
+            }),
+        ),
+        withDatabaseFallback("post:count", null, () =>
+            prisma.post.count({ where }),
+        ),
     ]);
 
+    if (posts === null || total === null) return null;
+
     return {
-        posts: (posts as PostRow[]).map(toCard),
-        totalPages: Math.max(1, Math.ceil(total / POSTS_PER_PAGE)),
+        posts: posts.map(toPostCard),
+        totalPages: totalPages(total, POSTS_PER_PAGE),
     };
 }
 
 async function getSidebar() {
     const [recent, popular] = await Promise.all([
-        prisma.post.findMany({
-            where: { published: true },
-            orderBy: { createdAt: "desc" },
-            take: 5,
-            select: { id: true, title: true, createdAt: true },
-        }),
-        prisma.post.findMany({
-            where: { published: true },
-            orderBy: { views: "desc" },
-            take: 5,
-            select: { id: true, title: true, views: true },
-        }),
+        withDatabaseFallback("post:recent", null, () =>
+            prisma.post.findMany({
+                where: { published: true },
+                orderBy: { createdAt: "desc" },
+                take: 5,
+                select: { id: true, title: true, createdAt: true },
+            }),
+        ),
+        withDatabaseFallback("post:popular", null, () =>
+            prisma.post.findMany({
+                where: { published: true },
+                orderBy: { views: "desc" },
+                take: 5,
+                select: { id: true, title: true, views: true },
+            }),
+        ),
     ]);
+
+    if (!recent || !popular) return null;
     return { recent, popular };
 }
 
@@ -99,18 +94,21 @@ export default async function PostPage({
     searchParams: Promise<{ page?: string; category?: string }>;
 }) {
     const params = await searchParams;
-    const page = Math.max(1, Number(params.page) || 1);
+    const page = normalizePage(params.page);
     const categoryId = params.category || null;
 
-    const [categories, { posts, totalPages }, sidebar] = await Promise.all([
+    const [categories, postsData, sidebar] = await Promise.all([
         getCategories(),
         getPosts(page, categoryId),
         getSidebar(),
     ]);
 
+    const dbUnavailable =
+        categories === null || postsData === null || sidebar === null;
+
     const activeName =
         categoryId != null
-            ? categories.find((c) => c.id === categoryId)?.name
+            ? categories?.find((c) => c.id === categoryId)?.name
             : null;
 
     return (
@@ -142,14 +140,18 @@ export default async function PostPage({
 
             <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-10 md:px-6 lg:grid-cols-[1fr_300px]">
                 <div className="min-w-0">
-                    <PostsPageClient
-                        initialPosts={posts}
-                        categories={categories}
-                        totalPages={totalPages}
-                        currentPage={page}
-                        selectedCategory={categoryId}
-                        perPage={POSTS_PER_PAGE}
-                    />
+                    {dbUnavailable ? (
+                        <DatabaseUnavailable />
+                    ) : (
+                        <PostsPageClient
+                            initialPosts={postsData.posts}
+                            categories={categories}
+                            totalPages={postsData.totalPages}
+                            currentPage={page}
+                            selectedCategory={categoryId}
+                            perPage={POSTS_PER_PAGE}
+                        />
+                    )}
                 </div>
 
                 {/* Desktop sidebar */}
@@ -160,7 +162,7 @@ export default async function PostPage({
                                 Recent
                             </h3>
                             <ul className="mt-4 space-y-4">
-                                {sidebar.recent.map((p) => (
+                                {(sidebar?.recent ?? []).map((p) => (
                                     <li key={p.id}>
                                         <Link
                                             href={`/post/${p.id}`}
@@ -181,7 +183,7 @@ export default async function PostPage({
                                 Most viewed
                             </h3>
                             <ul className="mt-4 space-y-3">
-                                {sidebar.popular.map((p, i) => (
+                                {(sidebar?.popular ?? []).map((p, i) => (
                                     <li key={p.id} className="flex gap-3">
                                         <span className="text-lg font-semibold tabular-nums text-muted-foreground/50">
                                             {i + 1}
