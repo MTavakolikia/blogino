@@ -1,12 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-    directUrl         = env("DIRECT_URL")
-
 }
 
 enum Role {
@@ -119,10 +117,12 @@ model Comment {
 
 
 model Like {
-  id          String    @id @default(cuid()) 
-  userId      String  
-  user        User      @relation(fields: [userId], references: [id])
-  postId      String   
-  post        Post      @relation(fields: [postId], references: [id])
-  createdAt   DateTime  @default(now())       
+  id        String   @id @default(cuid()) 
+  userId    String  
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String   
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())       
+  
+  @@unique([userId, postId])
 }

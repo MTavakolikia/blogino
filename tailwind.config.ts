@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 export default {
-	darkMode: ["class"],
 	content: [
 		"./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
 		"./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -65,6 +64,19 @@ export default {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			animation: {
+				marquee: "marquee var(--duration, 40s) linear infinite"
+			},
+			keyframes: {
+				marquee: {
+					from: {
+						transform: "translateX(0)"
+					},
+					to: {
+						transform: "translateX(calc(-100% - var(--gap, 1rem)))"
+					}
+				}
 			}
 		}
 	},
