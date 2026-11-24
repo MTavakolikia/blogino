@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Blogino
 
-## Getting Started
+A Next.js 16 blog with Prisma 7 and a local PostgreSQL database.
 
-First, run the development server:
+## Local setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env   # then adjust the values if needed
+npm run db             # start the bundled Postgres cluster (keep this running)
+npm run dev            # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm run dev` starts the local database automatically if it is not already
+listening, so a separate `npm run db` is usually unnecessary. The data lives in
+`.pgdata/`; delete that directory to reset it. Apply migrations and seed data
+with:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run migrate
+npm run seed
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+If the database is not reachable, pages now show a friendly
+"Articles are temporarily unavailable" notice instead of a raw
+`PrismaClientKnownRequestError`, and the full error is still logged on the
+server. In production, set `DATABASE_URL` to your hosted database.
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command             | Description                                      |
+| ------------------- | ------------------------------------------------ |
+| `npm run dev`       | Start database (if needed) and the dev server    |
+| `npm run build`     | Generate Prisma Client and build the app         |
+| `npm start`         | Serve the production build                       |
+| `npm run db`        | Start the local Postgres cluster                 |
+| `npm run db:stop`   | Stop the local Postgres cluster                  |
+| `npm run migrate`   | Apply Prisma migrations                          |
+| `npm run seed`      | Seed the database                                |
+| `npm run test:unit` | Run Vitest unit tests                            |
+| `npm run test:e2e`  | Run Playwright tests against a production server |
+| `npm test`          | Run unit and end-to-end tests                    |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Playwright uses the locally installed Google Chrome. `npm run test:e2e` builds
+the app first, then starts `npm run start` on port 3100 automatically.

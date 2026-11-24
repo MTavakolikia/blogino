@@ -1,6 +1,8 @@
 import { prisma } from "@/utils/prisma";
+import { withDatabaseFallback } from "@/utils/db-errors";
+import { toPostCard } from "@/utils/posts";
+import DatabaseUnavailable from "@/components/root/DatabaseUnavailable";
 import PostsExplorer from "@/components/posts/PostsExplorer";
-import type { PostCardPost } from "@/components/posts/PostCard";
 import type { CategoryOption } from "@/components/posts/CategoryFilter";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { TextReveal } from "@/components/magicui/text-reveal";
@@ -13,40 +15,40 @@ export const dynamic = "force-dynamic";
 const POSTS_PER_PAGE = 12;
 
 async function getLatestPosts() {
-    const posts = await prisma.post.findMany({
-        where: { published: true },
-        orderBy: { createdAt: "desc" },
-        take: POSTS_PER_PAGE,
-        include: {
-            author: { select: { firstName: true, lastName: true } },
-            category: { select: { name: true } },
-            _count: { select: { likes: true } },
-        },
-    });
+    const posts = await withDatabaseFallback("getLatestPosts", null, () =>
+        prisma.post.findMany({
+            where: { published: true },
+            orderBy: { createdAt: "desc" },
+            take: POSTS_PER_PAGE,
+            include: {
+                author: { select: { firstName: true, lastName: true } },
+                category: { select: { name: true } },
+                _count: { select: { likes: true } },
+            },
+        }),
+    );
 
-    return posts.map((post) => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        images: post.images,
-        createdAt: post.createdAt.toISOString(),
-        author: post.author,
-        category: post.category,
-        _count: post._count,
-    })) as PostCardPost[];
+    if (!posts) return null;
+
+    return posts.map(toPostCard);
 }
 
-async function getCategories(): Promise<CategoryOption[]> {
-    const categories = await prisma.category.findMany({
-        orderBy: { name: "asc" },
-        include: {
-            _count: {
-                select: {
-                    posts: { where: { published: true } },
+async function getCategories(): Promise<CategoryOption[] | null> {
+    const categories = await withDatabaseFallback("getCategories", null, () =>
+        prisma.category.findMany({
+            orderBy: { name: "asc" },
+            include: {
+                _count: {
+                    select: {
+                        posts: { where: { published: true } },
+                    },
                 },
             },
-        },
-    });
+        }),
+    );
+
+    if (!categories) return null;
+
     return categories.map((c) => ({
         id: c.id,
         name: c.name,
@@ -56,9 +58,15 @@ async function getCategories(): Promise<CategoryOption[]> {
 
 async function getTotals() {
     const [posts, authors] = await Promise.all([
-        prisma.post.count({ where: { published: true } }),
-        prisma.user.count({ where: { role: "AUTHOR" } }),
+        withDatabaseFallback("countPosts", null, () =>
+            prisma.post.count({ where: { published: true } }),
+        ),
+        withDatabaseFallback("countAuthors", null, () =>
+            prisma.user.count({ where: { role: "AUTHOR" } }),
+        ),
     ]);
+
+    if (posts === null || authors === null) return null;
     return { posts, authors };
 }
 
@@ -68,6 +76,9 @@ export default async function Home() {
         getCategories(),
         getTotals(),
     ]);
+
+    const dbUnavailable =
+        latestPosts === null || categories === null || totals === null;
 
     return (
         <div className="relative">
@@ -107,7 +118,7 @@ export default async function Home() {
                         <div className="flex items-center gap-6">
                             <div>
                                 <NumberTicker
-                                    value={totals.posts}
+                                    value={totals?.posts ?? 0}
                                     className="text-2xl font-semibold tabular-nums tracking-tight"
                                 />
                                 <p className="text-xs text-muted-foreground">
@@ -117,7 +128,7 @@ export default async function Home() {
                             <div className="h-8 w-px bg-border" />
                             <div>
                                 <NumberTicker
-                                    value={categories.length}
+                                    value={categories?.length ?? 0}
                                     className="text-2xl font-semibold tabular-nums tracking-tight"
                                 />
                                 <p className="text-xs text-muted-foreground">
@@ -127,7 +138,7 @@ export default async function Home() {
                             <div className="h-8 w-px bg-border" />
                             <div>
                                 <NumberTicker
-                                    value={totals.authors}
+                                    value={totals?.authors ?? 0}
                                     className="text-2xl font-semibold tabular-nums tracking-tight"
                                 />
                                 <p className="text-xs text-muted-foreground">
@@ -161,10 +172,14 @@ export default async function Home() {
                     </Link>
                 </div>
 
-                <PostsExplorer
-                    initialPosts={latestPosts}
-                    categories={categories}
-                />
+                {dbUnavailable ? (
+                    <DatabaseUnavailable />
+                ) : (
+                    <PostsExplorer
+                        initialPosts={latestPosts ?? []}
+                        categories={categories ?? []}
+                    />
+                )}
 
                 <div className="mt-10 flex justify-center sm:hidden">
                     <Link

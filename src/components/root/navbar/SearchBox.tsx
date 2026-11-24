@@ -1,77 +1,153 @@
-"use client"
-import { useState } from "react";
-import { useForm, FieldValues } from "react-hook-form";
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+import { CornerDownLeft, Search } from "lucide-react";
+
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, Search } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const categories = ["Technology", "Coding", "Design", "Crypto"];
+interface PostResult {
+    id: string;
+    title: string;
+    category: { name: string } | null;
+}
 
-export default function SearchBox() {
-    const { register, handleSubmit } = useForm<FieldValues>();
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState("All categories");
+export default function SearchBox({
+    onNavigate,
+    className,
+}: {
+    onNavigate?: () => void;
+    className?: string;
+}) {
+    const router = useRouter();
+    const [posts, setPosts] = useState<PostResult[]>([]);
+    const [query, setQuery] = useState("");
+    const [open, setOpen] = useState(false);
+    const rootRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    const onSubmit = (data: FieldValues) => {
-        console.log("Search Data:", { ...data, category: selectedCategory });
+    useEffect(() => {
+        (async () => {
+            try {
+                const postRes = await axios.get("/api/posts", {
+                    params: { limit: 100 },
+                });
+                setPosts(
+                    postRes.data.posts.map((p: PostResult) => ({
+                        id: p.id,
+                        title: p.title,
+                        category: p.category,
+                    })),
+                );
+            } catch {
+                /* ignore */
+            }
+        })();
+    }, []);
+
+    // Close the dropdown when clicking anywhere outside the search box.
+    useEffect(() => {
+        function onPointerDown(e: MouseEvent) {
+            if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", onPointerDown);
+        return () => document.removeEventListener("mousedown", onPointerDown);
+    }, []);
+
+    const results = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        return posts
+            .filter((p) => (q ? p.title.toLowerCase().includes(q) : true))
+            .slice(0, 6);
+    }, [posts, query]);
+
+    const goTo = (path: string) => {
+        setOpen(false);
+        setQuery("");
+        inputRef.current?.blur();
+        onNavigate?.();
+        router.push(path);
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="max-w-lg mx-auto">
-            <div className="flex relative">
-                <div className="relative">
-                    <Button
-                        type="button"
-                        className="shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:border-gray-600  rounded-r-none"
-                        onClick={() => setDropdownOpen(!dropdownOpen)}
-                    >
-                        {selectedCategory} <ChevronDown className="w-4 h-4 ml-2" />
-                    </Button>
-                    <AnimatePresence>
-                        {dropdownOpen && (
-                            <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                className="absolute z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-md w-44 dark:bg-gray-700 mt-2"
-                            >
-                                <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
-                                    {categories.map((category) => (
-                                        <li key={category}>
-                                            <button
-                                                type="button"
-                                                className="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                                                onClick={() => {
-                                                    setSelectedCategory(category);
-                                                    setDropdownOpen(false);
-                                                }}
-                                            >
-                                                {category}
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-                <div className="flex w-full items-center">
-                    <Input
-                        type="search"
-                        {...register("search", { required: true })}
-                        className="block w-full z-20 text-sm text-gray-900 bg-gray-50 border-s-gray-50  border border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-cyan-500 border-x-0 rounded-none"
-                        placeholder="Search Keywords..."
-                    />
-                    <Button
-                        type="submit"
-                        className=" text-sm font-medium h-full text-white bg-cyan-700 rounded-e-lg border border-cyan-700 hover:bg-cyan-800 focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:bg-cyan-600 dark:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-l-none"
-                    >
-                        <Search className="w-4 h-4" />
-                        <span className="sr-only">Search</span>
-                    </Button>
-                </div>
+        <div ref={rootRef} className={cn("relative w-full md:w-64", className)}>
+            <div className="relative">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    ref={inputRef}
+                    value={query}
+                    onChange={(e) => {
+                        setQuery(e.target.value);
+                        setOpen(true);
+                    }}
+                    onFocus={() => setOpen(true)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && results[0]) {
+                            goTo(`/post/${results[0].id}`);
+                        } else if (e.key === "Escape") {
+                            setOpen(false);
+                            inputRef.current?.blur();
+                        }
+                    }}
+                    placeholder="Search articles..."
+                    className="h-9 pl-8 text-sm pr-8"
+                    aria-label="Search articles"
+                />
+                {query && (
+                    <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:block">
+                        ⏎
+                    </kbd>
+                )}
             </div>
-        </form>
+
+            <AnimatePresence>
+                {open && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-border bg-popover shadow-lg md:left-auto md:w-80"
+                    >
+                        {results.length === 0 ? (
+                            <div className="px-4 py-6 text-center text-sm text-muted-foreground">
+                                No articles found
+                            </div>
+                        ) : (
+                            <ul className="max-h-80 overflow-y-auto p-1">
+                                {results.map((p, i) => (
+                                    <li key={p.id}>
+                                        <button
+                                            type="button"
+                                            onClick={() => goTo(`/post/${p.id}`)}
+                                            className="flex w-full items-start justify-between gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-muted"
+                                        >
+                                            <span className="min-w-0">
+                                                <span className="line-clamp-2 block text-sm font-medium text-foreground">
+                                                    {p.title}
+                                                </span>
+                                                {p.category && (
+                                                    <span className="mt-0.5 block text-xs text-muted-foreground">
+                                                        {p.category.name}
+                                                    </span>
+                                                )}
+                                            </span>
+                                            {i === 0 && query.trim() && (
+                                                <CornerDownLeft className="mt-1 h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
+                                            )}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
     );
 }
