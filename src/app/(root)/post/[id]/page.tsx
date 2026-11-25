@@ -3,17 +3,19 @@ import { withDatabaseFallback } from "@/utils/db-errors";
 import { readingTime } from "@/utils/posts";
 import DatabaseUnavailable from "@/components/root/DatabaseUnavailable";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft, Calendar, Eye } from "lucide-react";
 
 import PostContent from "@/components/posts/PostContent";
+import PostCover from "@/components/posts/PostCover";
 import LikeButton from "@/components/posts/LikeButton";
 import SavePostButton from "@/components/posts/SavePostButton";
 import ShareButtons from "@/components/posts/ShareButtons";
 import CommentsSection from "@/components/posts/CommentsSection";
 import { AuthorCard } from "@/components/posts/AuthorCard";
 import { ReadMoreSection } from "@/components/posts/ReadMoreSection";
+import ReadMoreSkeleton from "@/components/skeletons/ReadMoreSkeleton";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { TextReveal } from "@/components/magicui/text-reveal";
@@ -113,7 +115,7 @@ export default async function SinglePostPage({
                         />
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             <Eye className="h-3.5 w-3.5" />
-                            {post.views.toLocaleString()} views
+                            {post.views.toLocaleString("en-US")} views
                         </div>
                     </div>
                 </div>
@@ -123,11 +125,11 @@ export default async function SinglePostPage({
             <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-10 md:px-6 lg:grid-cols-[1fr_320px] lg:py-14">
                 <div className="min-w-0 max-w-3xl">
                     {cover && (
-                        <div className="relative mb-8 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-border/70">
-                            <Image
+                        <div className="relative mb-8 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-border/70 bg-muted">
+                            <PostCover
                                 src={cover}
                                 alt={post.title}
-                                fill
+                                label={post.category?.name}
                                 priority
                                 sizes="(max-width: 1024px) 100vw, 70vw"
                                 className="object-cover"
@@ -153,10 +155,12 @@ export default async function SinglePostPage({
 
                     <CommentsSection postId={post.id} />
 
-                    <ReadMoreSection
-                        currentPostId={post.id}
-                        currentCategoryId={post.categoryId}
-                    />
+                    <Suspense fallback={<ReadMoreSkeleton />}>
+                        <ReadMoreSection
+                            currentPostId={post.id}
+                            currentCategoryId={post.categoryId}
+                        />
+                    </Suspense>
                 </div>
 
                 {/* Desktop sidebar */}
@@ -196,7 +200,7 @@ export default async function SinglePostPage({
                                     {minutes} minute read
                                 </li>
                                 <li className="text-foreground/80">
-                                    {post.views.toLocaleString()} views
+                                    {post.views.toLocaleString("en-US")} views
                                 </li>
                                 <li className="text-foreground/80">
                                     {post._count.likes} likes

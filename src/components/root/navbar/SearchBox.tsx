@@ -7,6 +7,7 @@ import axios from "axios";
 import { CornerDownLeft, Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 interface PostResult {
@@ -26,6 +27,7 @@ export default function SearchBox({
     const [posts, setPosts] = useState<PostResult[]>([]);
     const [query, setQuery] = useState("");
     const [open, setOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
     const rootRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -44,6 +46,8 @@ export default function SearchBox({
                 );
             } catch {
                 /* ignore */
+            } finally {
+                setLoading(false);
             }
         })();
     }, []);
@@ -114,7 +118,22 @@ export default function SearchBox({
                         transition={{ duration: 0.15 }}
                         className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border border-border bg-popover shadow-lg md:left-auto md:w-80"
                     >
-                        {results.length === 0 ? (
+                        {loading ? (
+                            <div className="space-y-1 p-2" aria-hidden="true">
+                                {Array.from({ length: 3 }).map((_, i) => (
+                                    <div
+                                        key={i}
+                                        className="flex items-center gap-3 rounded-lg px-2 py-2.5"
+                                    >
+                                        <Skeleton className="h-8 w-10 shrink-0 rounded-md" />
+                                        <div className="flex-1 space-y-1.5">
+                                            <Skeleton className="h-3.5 w-3/4" />
+                                            <Skeleton className="h-3 w-20" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : results.length === 0 ? (
                             <div className="px-4 py-6 text-center text-sm text-muted-foreground">
                                 No articles found
                             </div>

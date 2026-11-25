@@ -50,3 +50,5 @@ opencode.json
 
 # local dev database (embedded-postgres)
 /.pgdata/
+AGENTS.md
+CLAUDE.md

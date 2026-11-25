@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { CommentListSkeleton } from "@/components/skeletons/CommentsSkeleton";
 import useUserStore from "@/store/userStore";
 import { cn } from "@/lib/utils";
 
@@ -187,18 +188,7 @@ export default function CommentsSection({ postId }: { postId: string }) {
             {/* List */}
             <div className="mt-8">
                 {loading ? (
-                    <div className="space-y-6">
-                        {[0, 1, 2].map((i) => (
-                            <div key={i} className="flex animate-pulse gap-3">
-                                <div className="h-9 w-9 shrink-0 rounded-full bg-muted" />
-                                <div className="flex-1 space-y-2 py-1">
-                                    <div className="h-3 w-32 rounded bg-muted" />
-                                    <div className="h-3 w-3/4 rounded bg-muted" />
-                                    <div className="h-3 w-1/2 rounded bg-muted" />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <CommentListSkeleton />
                 ) : comments.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
                         No comments yet. Be the first to share your thoughts.

@@ -37,11 +37,16 @@ export function BorderBeam({
             aria-hidden
             className={cn(
                 "pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]",
-                "[mask-composite:exclude] [mask-image:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]",
                 className,
             )}
             style={{
                 padding: borderWidth,
+                WebkitMaskImage:
+                    "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                WebkitMaskComposite: "xor",
+                maskImage:
+                    "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                maskComposite: "exclude",
             }}
         >
             <motion.div

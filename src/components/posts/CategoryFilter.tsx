@@ -38,8 +38,10 @@ function Chip({
         <button
             type="button"
             onClick={onClick}
+            aria-pressed={active}
             className={cn(
                 "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-all",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 active
                     ? "border-primary bg-primary text-primary-foreground shadow-sm shadow-primary/30"
                     : "border-border bg-background/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground",
@@ -78,7 +80,7 @@ export default function CategoryFilter({
     // Desktop: horizontally scrollable row of chips
     return (
         <div>
-            <div className="hidden items-center gap-2 overflow-x-auto no-scrollbar md:flex">
+            <div className="hidden flex-wrap items-center gap-2 md:flex">
                 {options.map((o) => (
                     <Chip
                         key={o.name}

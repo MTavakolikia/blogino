@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { Compass, Heart } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import ActivityListSkeleton from "@/components/skeletons/dashboard/ActivityListSkeleton";
 import { ActivityPostCard, type ActivityPost } from "@/components/dashboard/activity/ActivityPostCard";
 
 const container = {
@@ -54,14 +54,7 @@ export default function LikedPostPage() {
     };
 
     if (loading) {
-        return (
-            <div className="space-y-4">
-                <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
-                {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-32 w-full rounded-2xl" />
-                ))}
-            </div>
-        );
+        return <ActivityListSkeleton />;
     }
 
     return (

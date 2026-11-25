@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/card";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import { NumberTicker } from "@/components/magicui/number-ticker";
+import DashboardProfileSkeleton from "@/components/skeletons/dashboard/DashboardProfileSkeleton";
 
 interface ProfileUser {
     id: string;
@@ -118,11 +119,7 @@ export default function ProfilePageClient({
     };
 
     if (loading) {
-        return (
-            <div className="flex h-64 items-center justify-center">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-        );
+        return <DashboardProfileSkeleton />;
     }
 
     if (!user) return null;

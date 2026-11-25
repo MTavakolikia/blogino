@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { prisma } from "@/utils/prisma";
+import PostCover from "@/components/posts/PostCover";
 
 interface ReadMoreSectionProps {
     currentPostId: string;
@@ -64,18 +64,17 @@ export async function ReadMoreSection({
                     <Link
                         key={post.id}
                         href={`/post/${post.id}`}
-                        className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card transition-colors hover:border-primary/40"
+                        className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
                     >
                         <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-                            {post.images[0] && (
-                                <Image
-                                    src={post.images[0]}
-                                    alt={post.title}
-                                    fill
-                                    sizes="(max-width: 640px) 100vw, 33vw"
-                                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                />
-                            )}
+                            <PostCover
+                                src={post.images[0]}
+                                alt={post.title}
+                                label={post.category?.name}
+                                sizes="(max-width: 640px) 100vw, 33vw"
+                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                            />
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
                         </div>
                         <div className="flex flex-1 flex-col gap-2 p-5">
                             {post.category && (

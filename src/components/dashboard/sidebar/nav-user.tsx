@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/sidebar"
 import useUserStore from "@/store/userStore"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import routes from "@/config/routes"
 import { SignOutButton } from "@/components/root/navbar/SignOutButton"
 
@@ -47,7 +48,13 @@ function initials(name?: string) {
 export function NavUser() {
   const { isMobile } = useSidebar()
   const { user } = useUserStore()
-  const name = user ? `${user.firstName} ${user.lastName}` : ""
+  // The user is restored from browser storage after hydration. Rendering it
+  // during the first pass would produce a server/client text mismatch, so the
+  // avatar starts as a neutral placeholder and fills in once mounted.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  const activeUser = mounted ? user : null
+  const name = activeUser ? `${activeUser.firstName} ${activeUser.lastName}` : ""
 
   return (
     <SidebarMenu>
@@ -59,14 +66,14 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user?.profilePic ?? undefined} alt={name} />
+                <AvatarImage src={activeUser?.profilePic ?? undefined} alt={name} />
                 <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
                   {initials(name)}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{name || "Not signed in"}</span>
-                <span className="truncate text-xs">{user?.email ?? "Sign in"}</span>
+                <span className="truncate text-xs">{activeUser?.email ?? "Sign in"}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -80,14 +87,14 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user?.profilePic ?? undefined} alt={name} />
+                  <AvatarImage src={activeUser?.profilePic ?? undefined} alt={name} />
                   <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
                     {initials(name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{name || "Not signed in"}</span>
-                  <span className="truncate text-xs">{user?.email ?? "Sign in"}</span>
+                  <span className="truncate text-xs">{activeUser?.email ?? "Sign in"}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -122,3 +129,4 @@ export function NavUser() {
     </SidebarMenu>
   )
 }
+

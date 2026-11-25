@@ -1,5 +1,7 @@
 import type { PostCardPost } from "@/components/posts/PostCard";
 
+export { readingTime } from "@/lib/reading-time";
+
 export type PostCardSource = {
     id: string;
     title: string;
@@ -32,9 +34,4 @@ export function normalizePage(value: unknown): number {
 
 export function totalPages(count: number, perPage: number): number {
     return Math.max(1, Math.ceil(count / perPage));
-}
-
-export function readingTime(content: string): number {
-    const words = content.replace(/<[^>]*>/g, " ").trim().split(/\s+/).length;
-    return Math.max(1, Math.round(words / 200));
 }

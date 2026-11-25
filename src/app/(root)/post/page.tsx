@@ -171,7 +171,14 @@ export default async function PostPage({
                                             {p.title}
                                         </Link>
                                         <p className="mt-0.5 text-xs text-muted-foreground">
-                                            {new Date(p.createdAt).toLocaleDateString()}
+                                            {new Date(p.createdAt).toLocaleDateString(
+                                                "en-US",
+                                                {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                    year: "numeric",
+                                                },
+                                            )}
                                         </p>
                                     </li>
                                 ))}
