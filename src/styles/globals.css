@@ -157,6 +157,12 @@
 
 /* Refined scrollbar */
 @layer utilities {
+  @keyframes skeleton-shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
   @keyframes shimmer {
     0% {
       transform: translateX(0) translateY(0) scale(1);

@@ -26,6 +26,20 @@ If the database is not reachable, pages now show a friendly
 `PrismaClientKnownRequestError`, and the full error is still logged on the
 server. In production, set `DATABASE_URL` to your hosted database.
 
+### Demo accounts
+
+`npm run seed` creates one login per access level using the credentials from
+`.env` (see `.env.example`). Change these values and re-run the seed to use your
+own. The username is the email entered at `/login`.
+
+| Access | Username                   | Password                  | Can do                                  |
+| ------ | -------------------------- | ------------------------- | --------------------------------------- |
+| ADMIN  | `admin@blogino.example`    | `Admin@Blogino2026!`      | Everything, including user management   |
+| AUTHOR | `maya@blogino.example`     | `Author@Blogino2026!`     | Create and edit posts                   |
+| USER   | `harper@reader.example`    | `Reader@Blogino2026!`     | Like, save and comment on posts         |
+
+All other seeded accounts keep the shared fallback password `Password123!`.
+
 ## Scripts
 
 | Command             | Description                                      |

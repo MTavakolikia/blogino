@@ -22,7 +22,12 @@ const { Client } = require("pg");
 const bcrypt = require("bcryptjs");
 
 const { uid, hashSeed, rngFromSeed, pick, intBetween, buildContent, slugify } = require("./helpers");
-const { SEED_PASSWORD, USERS } = require("./users");
+const {
+    SEED_PASSWORD,
+    DEFAULT_EMAILS,
+    USERS,
+    passwordByEmail,
+} = require("./users");
 const { COMMENTS, REPLIES } = require("./comments");
 
 const DATA_DIR = path.join(__dirname, "data");
@@ -104,7 +109,11 @@ async function main() {
 
     try {
         // ---- 1. Clear seed-owned data (FK-safe order) -------------------
-        const seedEmails = USERS.map((u) => u.email);
+        // Include the original demo emails so changing a username in .env
+        // doesn't leave the previous account behind on re-seed.
+        const seedEmails = Array.from(
+            new Set([...DEFAULT_EMAILS, ...USERS.map((u) => u.email)]),
+        );
         const n = seedEmails.length;
         const emailList = Array.from({ length: n }, (_, i) => `$${i + 1}`).join(",");
         const userSub = `(SELECT "id" FROM "User" WHERE "email" IN (${emailList}))`;
@@ -132,7 +141,15 @@ async function main() {
         console.log("Cleared previous seed data.");
 
         // ---- 2. Users ----------------------------------------------------
-        const passwordHash = bcrypt.hashSync(SEED_PASSWORD, 10);
+        const hashCache = new Map();
+        const passwordHashFor = (email) => {
+            const plain = passwordByEmail[email] || SEED_PASSWORD;
+            if (!hashCache.has(plain)) {
+                hashCache.set(plain, bcrypt.hashSync(plain, 10));
+            }
+            return hashCache.get(plain);
+        };
+
         const userIdByEmail = {};
         for (const u of USERS) {
             const id = uid();
@@ -141,7 +158,7 @@ async function main() {
             batch.add(
                 `INSERT INTO "User" ("id","firstName","lastName","email","password","role","active","createdAt","updatedAt")
                  VALUES ($1,$2,$3,$4,$5,$6,TRUE,$7,$7)`,
-                [id, u.firstName, u.lastName, u.email, passwordHash, u.role, createdAt]
+                [id, u.firstName, u.lastName, u.email, passwordHashFor(u.email), u.role, createdAt]
             );
         }
         const adminEmail = USERS.find((u) => u.role === "ADMIN").email;

@@ -1,6 +1,8 @@
 "use strict";
 
-// All seed users share this password (bcrypt-hashed at seed time).
+require("dotenv").config();
+
+// Fallback password for any seeded account that has no explicit override.
 const SEED_PASSWORD = "Password123!";
 
 // role: "ADMIN" | "AUTHOR" | "USER"
@@ -32,4 +34,33 @@ const USERS = [
     { firstName: "Grace", lastName: "Owusu", email: "grace@reader.example", role: "USER" },
 ];
 
-module.exports = { SEED_PASSWORD, USERS };
+// Kept so a re-seed also removes rows created with a previously configured
+// username, even after the value in .env has changed.
+const DEFAULT_EMAILS = USERS.map((u) => u.email);
+
+// Login credentials for each access level come from .env. The username is the
+// email entered at /login; the password is bcrypt-hashed at seed time.
+const ROLE_ENV = {
+    ADMIN: ["ADMIN_USERNAME", "ADMIN_PASSWORD"],
+    AUTHOR: ["AUTHOR_USERNAME", "AUTHOR_PASSWORD"],
+    USER: ["USER_USERNAME", "USER_PASSWORD"],
+};
+
+const passwordByEmail = {};
+
+for (const [role, [usernameKey, passwordKey]] of Object.entries(ROLE_ENV)) {
+    const username = process.env[usernameKey];
+    const password = process.env[passwordKey];
+    if (!username && !password) continue;
+
+    // Apply the credentials to the first seeded account of this role.
+    const user = USERS.find((u) => u.role === role);
+    if (!user) continue;
+
+    if (username && !USERS.some((u) => u !== user && u.email === username)) {
+        user.email = username;
+    }
+    passwordByEmail[user.email] = password || SEED_PASSWORD;
+}
+
+module.exports = { SEED_PASSWORD, DEFAULT_EMAILS, USERS, passwordByEmail };

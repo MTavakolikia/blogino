@@ -1,37 +1,20 @@
-"use client";
+/**
+ * Plain-text excerpt for cards. Card content is decorative — rendering a full
+ * rich-text editor per card is expensive and breaks multi-line clamping, so we
+ * strip the HTML and let the parent handle truncation.
+ */
+export default function PostExcerpt({ content }: { content: string }) {
+    const text = content
+        .replace(/<[^>]*>/g, " ")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/&amp;/gi, "&")
+        .replace(/&lt;/gi, "<")
+        .replace(/&gt;/gi, ">")
+        .replace(/&quot;/gi, '"')
+        .replace(/&#0?39;/gi, "'")
+        .replace(/&#x27;/gi, "'")
+        .replace(/\s+/g, " ")
+        .trim();
 
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { useEffect, useState } from 'react';
-
-interface PostExcerptProps {
-    content: string;
+    return <>{text}</>;
 }
-
-export default function PostExcerpt({ content }: PostExcerptProps) {
-    const [mounted, setMounted] = useState(false);
-    const editor = useEditor({
-        extensions: [StarterKit],
-        content,
-        editable: false,
-        editorProps: {
-            attributes: {
-                class: 'rtl text-sm',
-            },
-        },
-    });
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    if (!mounted) {
-        return <div className="rtl text-sm">{content}</div>;
-    }
-
-    return (
-        <div className="prose-none">
-            <EditorContent editor={editor} />
-        </div>
-    );
-} 

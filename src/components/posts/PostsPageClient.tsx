@@ -8,6 +8,7 @@ import CategoryFilter, {
     type CategoryOption,
 } from "@/components/posts/CategoryFilter";
 import PostPagination from "@/components/posts/PostPagination";
+import PostsGridSkeleton from "@/components/skeletons/PostsGridSkeleton";
 
 interface PostsPageClientProps {
     initialPosts: PostCardPost[];
@@ -78,22 +79,20 @@ export default function PostsPageClient({
                 onSelect={changeCategory}
             />
 
-            <div aria-busy={loading} className="relative">
-                <div
-                    className={`grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 transition-opacity duration-300 ${
-                        loading ? "opacity-40" : "opacity-100"
-                    }`}
-                >
-                    {posts.length === 0 && !loading ? (
-                        <div className="col-span-full rounded-2xl border border-dashed border-border py-16 text-center text-muted-foreground">
-                            No articles found.
-                        </div>
-                    ) : (
-                        posts.map((post, i) => (
+            <div aria-busy={loading} aria-live="polite">
+                {loading ? (
+                    <PostsGridSkeleton count={perPage} />
+                ) : posts.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-border py-16 text-center text-muted-foreground">
+                        No articles found.
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        {posts.map((post, i) => (
                             <PostCard key={post.id} post={post} index={i} />
-                        ))
-                    )}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {pages > 1 && (
@@ -101,6 +100,7 @@ export default function PostsPageClient({
                     currentPage={page}
                     totalPages={pages}
                     onPageChange={changePage}
+                    disabled={loading}
                 />
             )}
         </div>
