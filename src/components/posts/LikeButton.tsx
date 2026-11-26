@@ -6,6 +6,8 @@ import { Heart } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
 interface LikeButtonProps {
     postId: string;
     initialLikeCount?: number;
@@ -53,9 +55,13 @@ export default function LikeButton({ postId, initialLikeCount = 0, initialIsLike
             size="sm"
             onClick={handleLike}
             disabled={isLoading}
-            className={`flex items-center gap-2 ${isLiked ? "text-red-500" : "text-gray-500"}`}
+            aria-pressed={isLiked}
+            className={cn(
+                "gap-2 text-muted-foreground hover:text-foreground",
+                isLiked && "text-rose-500 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-400",
+            )}
         >
-            <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+            <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
             <span>{likeCount || 0}</span>
         </Button>
     );
