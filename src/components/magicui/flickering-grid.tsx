@@ -37,10 +37,24 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
     const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
 
     const memoizedColor = useMemo(() => {
-        const toRGBA = (color: string) => {
+        const toRGBA = (value: string) => {
             if (typeof window === "undefined") {
                 return `rgba(0, 0, 0,`;
             }
+
+            // Canvas `fillStyle` cannot parse CSS custom properties itself, so
+            // resolve tokens like `hsl(var(--ring))` through the CSS engine
+            // first. Without this the grid silently falls back to black and
+            // disappears on dark backgrounds.
+            let color = value;
+            if (color.includes("var(")) {
+                const probe = document.createElement("span");
+                probe.style.color = color;
+                document.body.appendChild(probe);
+                color = getComputedStyle(probe).color;
+                probe.remove();
+            }
+
             const canvas = document.createElement("canvas");
             canvas.width = canvas.height = 1;
             const ctx = canvas.getContext("2d");
