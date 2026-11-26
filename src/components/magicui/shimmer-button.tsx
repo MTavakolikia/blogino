@@ -19,15 +19,16 @@ interface ShimmerButtonProps
 const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
     (
         {
-            shimmerColor = "#ffffff",
-            shimmerSize = "0.5em",
+            shimmerColor = "rgba(255,255,255,0.85)",
+            shimmerSize = "0.6em",
             shimmerDelay = 0,
-            shimmerDuration = 1.5,
+            shimmerDuration = 1.8,
             borderRadius = "9999px",
-            borderWidth = "4px",
-            glowColor = "#ffffff",
+            borderWidth = "1px",
+            glowColor = "rgba(4,133,159,0.35)",
             className,
             children,
+            style,
             ...props
         },
         ref,
@@ -44,45 +45,48 @@ const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
                         "--border-radius": borderRadius,
                         "--border-width": borderWidth,
                         "--glow-color": glowColor,
+                        "--shimmer-z": "0px",
+                        "--background-color": "oklch(24.7% 0.015 263.238)",
+                        "--color-1": "oklch(58% 0.11 210)",
+                        "--color-2": "oklch(48% 0.09 250)",
+                        "--color-3": "oklch(42% 0.07 280)",
+                        "--color-4": "oklch(58% 0.11 210)",
+                        borderRadius,
+                        // Two backgrounds: the solid fill clipped to the padding
+                        // box, and the gradient clipped to the border box. This
+                        // renders a crisp gradient ring without a wrapper.
+                        background:
+                            "linear-gradient(var(--background-color), var(--background-color)) padding-box, " +
+                            "linear-gradient(120deg, var(--color-1), var(--color-2), var(--color-3), var(--color-4)) border-box",
+                        border: "var(--border-width) solid transparent",
+                        ...style,
                     } as React.CSSProperties
                 }
                 className={cn(
-                    "group relative w-auto cursor-pointer overflow-hidden whitespace-nowrap px-6 py-2 text-white [background:linear-gradient(var(--background-color),var(--background-color))_padding-box,linear-gradient(to_right,var(--color-1),var(--color-2),var(--color-3),var(--color-4))_border-box]",
-                    "transition-colors duration-300 ease-in-out [border:0px_solid_transparent] hover:[--color-1:var(--shimmer-color)] hover:[--color-4:var(--shimmer-color)]",
+                    "group relative w-auto cursor-pointer overflow-hidden whitespace-nowrap px-6 py-2.5 text-white",
+                    "shadow-lg shadow-black/20 transition-[transform,box-shadow,filter] duration-300 ease-out",
+                    "hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[0_18px_40px_-12px_var(--glow-color)] hover:brightness-110",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                     className,
                 )}
                 {...props}
             >
-                <span
-                    className="relative block h-full w-full text-sm font-medium shadow-[inset_0_-px_10px_-10px_var(--shadow-color)]"
-                    style={
-                        {
-                            "--background-color": "oklch(24.7% 0.015 263.238)",
-                            "--color-1": "oklch(41.8% 0.015 263.083)",
-                            "--color-2": "oklch(27.8% 0.006 249.558)",
-                            "--color-3": "oklch(27.8% 0.006 249.558)",
-                            "--color-4": "oklch(41.8% 0.015 263.083)",
-                            "--shadow-color": "oklch(0% 0% 0% / 0.2)",
-                            borderRadius: "var(--border-radius)",
-                        } as React.CSSProperties
-                    }
-                >
+                <span className="relative z-10 block h-full w-full text-sm font-semibold">
                     {children}
                 </span>
+
+                {/* Traveling light sweep. */}
                 <span
                     aria-hidden
-                    className="pointer-events-none absolute inset-0 overflow-hidden"
+                    className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
                     style={{ borderRadius: "var(--border-radius)" }}
                 >
                     <span
-                        className="absolute -inset-full w-full"
+                        className="absolute -inset-full h-[200%] w-[200%] opacity-70 motion-reduce:hidden"
                         style={
                             {
-                                "--shimmer-x": "-200%",
-                                "--shimmer-y": 0,
-                                "--shimmer-z": "calc(100% + var(--shimmer-size))",
                                 background:
-                                    "radial-gradient(16px 16px at var(--shimmer-x) var(--shimmer-y), var(--shimmer-color), transparent)",
+                                    "radial-gradient(18px 18px at 0% 50%, var(--shimmer-color), transparent)",
                                 animation:
                                     "shimmer var(--shimmer-duration) infinite linear",
                                 animationDelay: "var(--shimmer-delay)",
