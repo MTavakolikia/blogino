@@ -72,17 +72,17 @@ export default async function SinglePostPage({
                         className="absolute left-0 top-0 size-full"
                         squareSize={4}
                         gridGap={6}
-                        color="var(--ring)"
-                        maxOpacity={0.14}
+                        color="hsl(var(--ring))"
+                        maxOpacity={0.16}
                         flickerChance={0.05}
                     />
                 </div>
 
                 <div className="relative mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
-                    <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+                    <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-3 text-sm text-muted-foreground">
                         <Link
                             href="/post"
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-background/60 text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background/70 text-foreground/70 transition-colors hover:border-primary/40 hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                             aria-label="Back to articles"
                         >
                             <ArrowLeft className="h-4 w-4" />
@@ -90,31 +90,32 @@ export default async function SinglePostPage({
                         {post.category && (
                             <Link
                                 href={`/post?category=${post.category.id}`}
-                                className="inline-flex h-6 items-center rounded-md border border-border bg-muted/50 px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                                className="inline-flex h-7 items-center rounded-md border border-border bg-muted/60 px-3 text-xs font-medium text-foreground/80 transition-colors hover:border-primary/40 hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
                             >
                                 {post.category.name}
                             </Link>
                         )}
-                        <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                            <Calendar className="h-3.5 w-3.5" />
+                        <span className="flex items-center gap-1.5 font-medium">
+                            <Calendar className="h-4 w-4" />
                             {date}
                         </span>
-                        <span className="text-xs text-muted-foreground">
-                            · {minutes} min read
+                        <span aria-hidden="true" className="text-border">
+                            ·
                         </span>
+                        <span>{minutes} min read</span>
                     </div>
 
                     <h1 className="text-3xl font-semibold leading-[1.1] tracking-tighter md:text-5xl">
                         <TextReveal text={post.title} />
                     </h1>
 
-                    <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+                    <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
                         <AuthorCard
                             name={`${post.author.firstName} ${post.author.lastName}`}
                             profilePic={post.author.profilePic}
                         />
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <Eye className="h-3.5 w-3.5" />
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                            <Eye className="h-4 w-4" />
                             {post.views.toLocaleString("en-US")} views
                         </div>
                     </div>
@@ -137,7 +138,7 @@ export default async function SinglePostPage({
                         </div>
                     )}
 
-                    <div className="prose prose-base dark:prose-invert lg:prose-lg max-w-none">
+                    <div className="prose prose-base max-w-none dark:prose-invert lg:prose-lg prose-headings:font-semibold prose-headings:tracking-tight prose-p:leading-relaxed prose-strong:text-foreground prose-li:marker:text-muted-foreground">
                         <PostContent content={post.content} />
                     </div>
 
@@ -185,27 +186,37 @@ export default async function SinglePostPage({
                         </div>
 
                         <div className="rounded-2xl border border-border/70 bg-muted/30 p-6">
-                            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                                In this article
+                            <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                                At a glance
                             </h3>
-                            <ul className="mt-4 space-y-2.5 text-sm">
-                                {(post.category ? [post.category.name] : []).map(
-                                    (c) => (
-                                        <li key={c} className="text-foreground/80">
-                                            {c}
-                                        </li>
-                                    ),
+                            <dl className="mt-4 divide-y divide-border/70 text-sm">
+                                {post.category && (
+                                    <div className="flex items-center justify-between gap-4 py-2.5 first:pt-0">
+                                        <dt className="text-muted-foreground">Topic</dt>
+                                        <dd className="font-medium text-foreground">
+                                            {post.category.name}
+                                        </dd>
+                                    </div>
                                 )}
-                                <li className="text-foreground/80">
-                                    {minutes} minute read
-                                </li>
-                                <li className="text-foreground/80">
-                                    {post.views.toLocaleString("en-US")} views
-                                </li>
-                                <li className="text-foreground/80">
-                                    {post._count.likes} likes
-                                </li>
-                            </ul>
+                                <div className="flex items-center justify-between gap-4 py-2.5">
+                                    <dt className="text-muted-foreground">Reading time</dt>
+                                    <dd className="font-medium text-foreground">
+                                        {minutes} min
+                                    </dd>
+                                </div>
+                                <div className="flex items-center justify-between gap-4 py-2.5">
+                                    <dt className="text-muted-foreground">Views</dt>
+                                    <dd className="font-medium text-foreground">
+                                        {post.views.toLocaleString("en-US")}
+                                    </dd>
+                                </div>
+                                <div className="flex items-center justify-between gap-4 py-2.5 last:pb-0">
+                                    <dt className="text-muted-foreground">Likes</dt>
+                                    <dd className="font-medium text-foreground">
+                                        {post._count.likes}
+                                    </dd>
+                                </div>
+                            </dl>
                         </div>
                     </div>
                 </aside>
