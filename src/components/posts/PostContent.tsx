@@ -1,7 +1,7 @@
 "use client";
 
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 
 interface PostContentProps {
     content: string;
@@ -14,14 +14,18 @@ export default function PostContent({ content }: PostContentProps) {
         editable: false,
         editorProps: {
             attributes: {
-                class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl rtl prose-headings:font-bold prose-p:text-justify prose-img:rounded-xl prose-img:mx-auto',
+                // The `prose` / `dark:prose-invert` styling lives on the single
+                // wrapper in the post page. Adding another `prose` here would
+                // reset the inverted colour variables and render dark text on
+                // a dark background.
+                class: "focus:outline-none",
             },
         },
     });
 
     return (
-        <div className="max-w-none w-full">
+        <div className="w-full max-w-none">
             <EditorContent editor={editor} />
         </div>
     );
-} 
+}
