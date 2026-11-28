@@ -10,10 +10,30 @@ export async function PUT(
         const authError = await authenticateAPI(request, ["ADMIN", "AUTHOR"]);
         if (authError) return authError;
 
-        const { title, content, published, categoryId, images } = await request.json();
+        const {
+            title,
+            content,
+            published,
+            categoryId,
+            images,
+            slug,
+            excerpt,
+            metaTitle,
+            metaDescription,
+        } = await request.json();
         const { id } = await params;
 
-        if (!title && !content && published === undefined && categoryId === undefined && !images) {
+        if (
+            !title &&
+            !content &&
+            published === undefined &&
+            categoryId === undefined &&
+            !images &&
+            slug === undefined &&
+            excerpt === undefined &&
+            metaTitle === undefined &&
+            metaDescription === undefined
+        ) {
             return NextResponse.json(
                 {
                     error: "Missing update fields",
@@ -47,6 +67,14 @@ export async function PUT(
                 ...(published !== undefined ? { published } : {}),
                 ...(categoryId !== undefined ? { categoryId } : {}),
                 ...(Array.isArray(images) ? { images } : {}),
+                ...(slug !== undefined ? { slug: String(slug).trim() || null } : {}),
+                ...(excerpt !== undefined ? { excerpt: String(excerpt).trim() || null } : {}),
+                ...(metaTitle !== undefined
+                    ? { metaTitle: String(metaTitle).trim() || null }
+                    : {}),
+                ...(metaDescription !== undefined
+                    ? { metaDescription: String(metaDescription).trim() || null }
+                    : {}),
             },
         });
 

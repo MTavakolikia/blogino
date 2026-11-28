@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { prisma } from "@/utils/prisma";
 import PostCover from "@/components/posts/PostCover";
+import { postPath } from "@/lib/seo";
 
 interface ReadMoreSectionProps {
     currentPostId: string;
@@ -30,6 +31,7 @@ export async function ReadMoreSection({
                 title: true,
                 images: true,
                 createdAt: true,
+                slug: true,
                 category: { select: { name: true } },
             },
         }),
@@ -42,6 +44,7 @@ export async function ReadMoreSection({
                 title: true,
                 images: true,
                 createdAt: true,
+                slug: true,
                 category: { select: { name: true } },
             },
         }),
@@ -63,7 +66,7 @@ export async function ReadMoreSection({
                 {related.map((post) => (
                     <Link
                         key={post.id}
-                        href={`/post/${post.id}`}
+                        href={postPath(post)}
                         className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
                     >
                         <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">

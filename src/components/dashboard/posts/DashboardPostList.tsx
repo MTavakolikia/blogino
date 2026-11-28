@@ -28,6 +28,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { postPath } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export interface DashboardPostRow {
@@ -36,6 +37,7 @@ export interface DashboardPostRow {
     published: boolean;
     createdAt: string;
     images: string[];
+    slug?: string | null;
     authorId: string;
     author: { firstName: string; lastName: string };
     category: { name: string } | null;
@@ -234,7 +236,7 @@ export default function DashboardPostList({
                             {/* Actions */}
                             <div className="flex items-center gap-1">
                                 <Button asChild variant="ghost" size="icon" className="h-8 w-8" aria-label="View post">
-                                    <Link href={`/post/${post.id}`}>
+                                    <Link href={postPath(post)}>
                                         <Eye className="h-3.5 w-3.5" />
                                     </Link>
                                 </Button>

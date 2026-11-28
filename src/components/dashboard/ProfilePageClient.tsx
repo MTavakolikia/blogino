@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/card";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import { NumberTicker } from "@/components/magicui/number-ticker";
+import { postPath } from "@/lib/seo";
 import DashboardProfileSkeleton from "@/components/skeletons/dashboard/DashboardProfileSkeleton";
 
 interface ProfileUser {
@@ -44,6 +45,7 @@ interface ProfileUser {
 interface RecentPost {
     id: string;
     title: string;
+    slug?: string | null;
     category: string | null;
     likes: number;
     comments: number;
@@ -215,7 +217,7 @@ export default function ProfilePageClient({
                                 {recent.map((p) => (
                                     <Link
                                         key={p.id}
-                                        href={`/post/${p.id}`}
+                                        href={postPath(p)}
                                         className="group flex items-center justify-between gap-4 rounded-lg px-3 py-2.5 transition-colors hover:bg-muted/50"
                                     >
                                         <span className="min-w-0">

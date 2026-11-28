@@ -8,6 +8,7 @@ const post = {
     content: "<p>world</p>",
     images: ["https://example.com/cover.jpg"],
     createdAt: new Date("2026-01-02T03:04:05.000Z"),
+    slug: "hello",
     author: { firstName: "Ada", lastName: "Lovelace" },
     category: { name: "Tech" },
     _count: { likes: 3 },

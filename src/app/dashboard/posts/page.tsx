@@ -46,6 +46,7 @@ export default async function PostsPage() {
                     published: p.published,
                     createdAt: p.createdAt.toISOString(),
                     images: p.images,
+                    slug: p.slug,
                     authorId: p.authorId,
                     author: p.author,
                     category: p.category,

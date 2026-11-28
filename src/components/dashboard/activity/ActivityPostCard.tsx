@@ -18,12 +18,14 @@ import {
     CardContent,
     CardHeader,
 } from "@/components/ui/card";
+import { postPath } from "@/lib/seo";
 
 export interface ActivityPost {
     id: string;
     title: string;
     content: string;
     images: string[];
+    slug?: string | null;
     category: { name: string } | null;
     author: { firstName: string; lastName: string };
     createdAt: string;
@@ -63,7 +65,7 @@ export function ActivityPostCard({
                     </div>
                     <div className="min-w-0">
                         <h3 className="truncate font-semibold tracking-tight">
-                            <Link href={`/post/${post.id}`} className="hover:text-primary">
+                            <Link href={postPath(post)} className="hover:text-primary">
                                 {post.title}
                             </Link>
                         </h3>
@@ -114,7 +116,7 @@ export function ActivityPostCard({
                         })}
                     </span>
                     <Link
-                        href={`/post/${post.id}`}
+                        href={postPath(post)}
                         className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline underline-offset-4"
                     >
                         Read <ArrowUpRight className="h-3.5 w-3.5" />

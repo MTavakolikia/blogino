@@ -43,6 +43,7 @@ export default async function ProfilePage() {
             recentPosts={posts.map((p) => ({
                 id: p.id,
                 title: p.title,
+                slug: p.slug,
                 category: p.category?.name ?? null,
                 likes: p._count.likes,
                 comments: p._count.comments,

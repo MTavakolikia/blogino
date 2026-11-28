@@ -7,6 +7,7 @@ import { ArrowUpRight, Clock, Heart } from "lucide-react";
 import PostCover from "@/components/posts/PostCover";
 import PostExcerpt from "@/components/posts/PostExcerpt";
 import { readingTime } from "@/lib/reading-time";
+import { postPath } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 export interface PostCardPost {
@@ -15,6 +16,7 @@ export interface PostCardPost {
     content: string;
     images: string[];
     createdAt: string | Date;
+    slug?: string | null;
     category?: { name: string } | null;
     author?: { firstName: string; lastName: string } | null;
     _count?: { likes: number };
@@ -81,7 +83,7 @@ export default function PostCard({
             >
                 {/* Cover */}
                 <Link
-                    href={`/post/${post.id}`}
+                    href={postPath(post)}
                     aria-label={post.title}
                     className={cn(
                         "relative block shrink-0 overflow-hidden bg-muted",
@@ -145,7 +147,7 @@ export default function PostCard({
                         )}
                     >
                         <Link
-                            href={`/post/${post.id}`}
+                            href={postPath(post)}
                             className="transition-colors group-hover/card:text-primary"
                         >
                             {post.title}

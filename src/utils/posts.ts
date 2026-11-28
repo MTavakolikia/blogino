@@ -8,6 +8,7 @@ export type PostCardSource = {
     content: string;
     images: string[];
     createdAt: Date | string;
+    slug?: string | null;
     author: { firstName: string; lastName: string } | null;
     category: { name: string } | null;
     _count: { likes: number };
@@ -20,6 +21,7 @@ export function toPostCard(post: PostCardSource): PostCardPost {
         content: post.content,
         images: post.images,
         createdAt: new Date(post.createdAt).toISOString(),
+        slug: post.slug ?? null,
         author: post.author,
         category: post.category,
         _count: post._count,

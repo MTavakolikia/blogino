@@ -34,6 +34,10 @@ export default async function EditPostPage({
                 published: post.published,
                 categoryId: post.categoryId,
                 images: post.images,
+                slug: post.slug,
+                excerpt: post.excerpt,
+                metaTitle: post.metaTitle,
+                metaDescription: post.metaDescription,
             }}
         />
     );

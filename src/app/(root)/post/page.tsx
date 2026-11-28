@@ -5,6 +5,7 @@ import Link from "next/link";
 import PostsPageClient from "@/components/posts/PostsPageClient";
 import type { CategoryOption } from "@/components/posts/CategoryFilter";
 import { normalizePage, toPostCard, totalPages } from "@/utils/posts";
+import { postPath } from "@/lib/seo";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 
 export const dynamic = "force-dynamic";
@@ -71,7 +72,7 @@ async function getSidebar() {
                 where: { published: true },
                 orderBy: { createdAt: "desc" },
                 take: 5,
-                select: { id: true, title: true, createdAt: true },
+                select: { id: true, title: true, slug: true, createdAt: true },
             }),
         ),
         withDatabaseFallback("post:popular", null, () =>
@@ -79,7 +80,7 @@ async function getSidebar() {
                 where: { published: true },
                 orderBy: { views: "desc" },
                 take: 5,
-                select: { id: true, title: true, views: true },
+                select: { id: true, title: true, slug: true, views: true },
             }),
         ),
     ]);
@@ -165,7 +166,7 @@ export default async function PostPage({
                                 {(sidebar?.recent ?? []).map((p) => (
                                     <li key={p.id}>
                                         <Link
-                                            href={`/post/${p.id}`}
+                                            href={postPath(p)}
                                             className="line-clamp-2 text-sm font-medium text-foreground/85 transition-colors hover:text-primary"
                                         >
                                             {p.title}
@@ -196,7 +197,7 @@ export default async function PostPage({
                                             {i + 1}
                                         </span>
                                         <Link
-                                            href={`/post/${p.id}`}
+                                            href={postPath(p)}
                                             className="line-clamp-2 flex-1 text-sm text-foreground/85 transition-colors hover:text-primary"
                                         >
                                             {p.title}

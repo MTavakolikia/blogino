@@ -14,12 +14,14 @@ import {
     Loader2,
     PenLine,
     Save,
+    Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
     SelectContent,
@@ -27,7 +29,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import RichTextEditor from "@/components/posts/RichTextEditor";
+import { postPath } from "@/lib/seo";
 import Link from "next/link";
 
 const postSchema = z.object({
@@ -35,6 +43,10 @@ const postSchema = z.object({
     content: z.string().min(10, "Write a little more before saving"),
     categoryId: z.string().min(1, "Pick a category"),
     image: z.string().url("That doesn't look like a valid image URL").optional().or(z.literal("")),
+    slug: z.string().max(100, "Keep the slug under 100 characters").optional(),
+    excerpt: z.string().max(220, "Keep the excerpt under 220 characters").optional(),
+    metaTitle: z.string().max(120, "Keep the meta title under 120 characters").optional(),
+    metaDescription: z.string().max(200, "Keep the meta description under 200 characters").optional(),
 });
 
 type PostFormValues = z.infer<typeof postSchema>;
@@ -46,6 +58,10 @@ export interface EditablePost {
     published: boolean;
     categoryId: string | null;
     images: string[];
+    slug?: string | null;
+    excerpt?: string | null;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
 }
 
 interface Category {
@@ -68,8 +84,21 @@ export default function PostForm({ mode, post }: { mode: "create" | "edit"; post
                       content: post.content,
                       categoryId: post.categoryId ?? "",
                       image: post.images[0] ?? "",
+                      slug: post.slug ?? "",
+                      excerpt: post.excerpt ?? "",
+                      metaTitle: post.metaTitle ?? "",
+                      metaDescription: post.metaDescription ?? "",
                   }
-                : { title: "", content: "", categoryId: "", image: "" },
+                : {
+                      title: "",
+                      content: "",
+                      categoryId: "",
+                      image: "",
+                      slug: "",
+                      excerpt: "",
+                      metaTitle: "",
+                      metaDescription: "",
+                  },
     });
 
     React.useEffect(() => {
@@ -85,11 +114,56 @@ export default function PostForm({ mode, post }: { mode: "create" | "edit"; post
         })();
     }, []);
 
+    const [seoOpen, setSeoOpen] = React.useState(false);
+    const [generatingSeo, setGeneratingSeo] = React.useState(false);
+
+    /** Ask the SEO tool for suggested slug/description fields and fill them. */
+    const autoFillSeo = async () => {
+        const values = form.getValues();
+        if (!values.title || !values.content) {
+            toast.error("Write a title and some content first — SEO needs something to work with.");
+            return;
+        }
+        setGeneratingSeo(true);
+        try {
+            const { data } = await axios.post("/api/seo/preview", {
+                title: values.title,
+                content: values.content,
+                excerpt: values.excerpt,
+                slug: values.slug,
+                metaTitle: values.metaTitle,
+                metaDescription: values.metaDescription,
+                postId: mode === "edit" ? post?.id : undefined,
+            });
+            form.setValue("slug", data.slug, { shouldValidate: true });
+            form.setValue("excerpt", data.excerpt, { shouldValidate: true });
+            form.setValue("metaTitle", data.metaTitle, { shouldValidate: true });
+            form.setValue("metaDescription", data.metaDescription, {
+                shouldValidate: true,
+            });
+            toast.success("SEO fields generated — review them before saving.");
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                toast.error(error.response?.data?.error ?? "SEO generation failed");
+            } else {
+                toast.error("SEO generation failed");
+            }
+        } finally {
+            setGeneratingSeo(false);
+        }
+    };
+
     const save = async (published: boolean) => {
         setSaving(published ? "publish" : "draft");
         try {
             const values = form.getValues();
             const images = values.image?.trim() ? [values.image.trim()] : [];
+            const seoPayload = {
+                slug: values.slug?.trim() || undefined,
+                excerpt: values.excerpt?.trim() || undefined,
+                metaTitle: values.metaTitle?.trim() || undefined,
+                metaDescription: values.metaDescription?.trim() || undefined,
+            };
 
             if (mode === "create") {
                 await axios.post("/api/posts", {
@@ -97,6 +171,7 @@ export default function PostForm({ mode, post }: { mode: "create" | "edit"; post
                     content: values.content,
                     categoryId: values.categoryId || null,
                     images,
+                    ...seoPayload,
                 });
                 toast.success("Draft created — you can publish it from the posts list.");
                 router.push("/dashboard/posts");
@@ -108,6 +183,7 @@ export default function PostForm({ mode, post }: { mode: "create" | "edit"; post
                     categoryId: values.categoryId || null,
                     images,
                     published,
+                    ...seoPayload,
                 });
                 toast.success(
                     published ? "Post saved and published" : "Draft saved",
@@ -238,6 +314,127 @@ export default function PostForm({ mode, post }: { mode: "create" | "edit"; post
                     )}
                 </div>
 
+                {/* SEO & sharing */}
+                <Collapsible open={seoOpen} onOpenChange={setSeoOpen}>
+                    <div className="rounded-xl border border-border/70 bg-muted/20">
+                        <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-left">
+                            <div className="flex items-center gap-2">
+                                <Sparkles className="h-4 w-4 text-primary" />
+                                <div>
+                                    <p className="text-sm font-medium">SEO &amp; sharing</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Slug, excerpt and meta tags — auto-generate or fine-tune
+                                    </p>
+                                </div>
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                                {seoOpen ? "Hide" : "Show"}
+                            </span>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                            <div className="space-y-4 border-t border-border/60 p-4">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <p className="text-xs text-muted-foreground">
+                                        Leave anything blank and it's generated from your
+                                        title &amp; content automatically on save.
+                                    </p>
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => void autoFillSeo()}
+                                        disabled={generatingSeo}
+                                    >
+                                        {generatingSeo ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                            <Sparkles className="h-4 w-4" />
+                                        )}
+                                        Auto-generate
+                                    </Button>
+                                </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="seo-slug">
+                                            URL slug{" "}
+                                            <span className="font-normal text-muted-foreground">
+                                                /post/…
+                                            </span>
+                                        </Label>
+                                        <Input
+                                            id="seo-slug"
+                                            placeholder="generated-from-title"
+                                            className="font-mono text-sm"
+                                            {...form.register("slug")}
+                                        />
+                                        <p className="truncate text-xs text-muted-foreground">
+                                            {form.watch("slug")
+                                                ? `/post/${form.watch("slug")}`
+                                                : "/post/&lt;auto-generated&gt;"}
+                                        </p>
+                                        {form.formState.errors.slug && (
+                                            <p className="text-xs text-destructive">
+                                                {form.formState.errors.slug.message}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="seo-metatitle">Meta title</Label>
+                                        <Input
+                                            id="seo-metatitle"
+                                            placeholder="Defaults to the post title"
+                                            {...form.register("metaTitle")}
+                                        />
+                                        <p className="text-xs tabular-nums text-muted-foreground">
+                                            {(form.watch("metaTitle") ?? "").length}/60 recommended
+                                        </p>
+                                        {form.formState.errors.metaTitle && (
+                                            <p className="text-xs text-destructive">
+                                                {form.formState.errors.metaTitle.message}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="seo-excerpt">Excerpt</Label>
+                                    <Textarea
+                                        id="seo-excerpt"
+                                        rows={2}
+                                        placeholder="Shown on cards, search results and in feeds"
+                                        {...form.register("excerpt")}
+                                    />
+                                    {form.formState.errors.excerpt && (
+                                        <p className="text-xs text-destructive">
+                                            {form.formState.errors.excerpt.message}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="seo-metadesc">Meta description</Label>
+                                    <Textarea
+                                        id="seo-metadesc"
+                                        rows={3}
+                                        placeholder="The search result blurb — under 160 characters"
+                                        {...form.register("metaDescription")}
+                                    />
+                                    <p className="text-xs tabular-nums text-muted-foreground">
+                                        {(form.watch("metaDescription") ?? "")
+                                            .length}/160 recommended
+                                    </p>
+                                    {form.formState.errors.metaDescription && (
+                                        <p className="text-xs text-destructive">
+                                            {form.formState.errors.metaDescription.message}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </CollapsibleContent>
+                    </div>
+                </Collapsible>
+
                 <div className="flex flex-wrap items-center justify-end gap-3 border-t border-border/60 pt-5">
                     {mode === "edit" && (
                         <Button
@@ -266,7 +463,7 @@ export default function PostForm({ mode, post }: { mode: "create" | "edit"; post
                     </Button>
                     {mode === "edit" && post && (
                         <Button type="button" variant="ghost" asChild>
-                            <Link href={`/post/${post.id}`}>
+                            <Link href={postPath(post)}>
                                 <ExternalLink className="h-4 w-4" /> Preview
                             </Link>
                         </Button>
