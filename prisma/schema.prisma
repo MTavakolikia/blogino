@@ -85,6 +85,10 @@ model Post {
   published   Boolean   @default(false)  
   images      String[] 
   views       Int       @default(0)   
+  slug        String?   @unique
+  excerpt     String?
+  metaTitle   String?
+  metaDescription String?
   authorId    String   
   author      User      @relation(fields: [authorId], references: [id])
   categoryId  String?   
@@ -95,7 +99,23 @@ model Post {
   updatedAt   DateTime  @updatedAt
   approvedById String? 
   approvedAt   DateTime? 
-   savedBy SavedPost[]
+  savedBy SavedPost[]
+  viewLog PostView[]
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model PostView {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([postId, createdAt])
 }
 
 
