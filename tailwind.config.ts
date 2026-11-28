@@ -8,6 +8,21 @@ export default {
 	],
 	theme: {
 		extend: {
+			fontFamily: {
+				sans: [
+					"var(--font-geist-sans)",
+					"ui-sans-serif",
+					"system-ui",
+					"sans-serif",
+				],
+				serif: ["var(--font-serif)"],
+				mono: [
+					"var(--font-geist-mono)",
+					"ui-monospace",
+					"SFMono-Regular",
+					"monospace",
+				],
+			},
 			colors: {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
@@ -66,7 +81,9 @@ export default {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			animation: {
-				marquee: "marquee var(--duration, 40s) linear infinite"
+				marquee: "marquee var(--duration, 40s) linear infinite",
+				shine: "shine var(--duration, 10s) linear infinite",
+				"blink-cursor": "blink-cursor 1.2s step-end infinite"
 			},
 			keyframes: {
 				marquee: {
@@ -75,6 +92,25 @@ export default {
 					},
 					to: {
 						transform: "translateX(calc(-100% - var(--gap, 1rem)))"
+					}
+				},
+				shine: {
+					"0%": {
+						backgroundPosition: "0% 0%"
+					},
+					"50%": {
+						backgroundPosition: "100% 100%"
+					},
+					to: {
+						backgroundPosition: "0% 0%"
+					}
+				},
+				"blink-cursor": {
+					"0%, 49%": {
+						opacity: "1"
+					},
+					"50%, 100%": {
+						opacity: "0"
 					}
 				}
 			}
