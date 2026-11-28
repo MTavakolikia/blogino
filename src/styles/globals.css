@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "@fontsource-variable/newsreader/opsz.css";
+@import "@fontsource-variable/newsreader/opsz-italic.css";
 @config "../../tailwind.config.ts";
 
 /*
@@ -9,6 +11,12 @@
   An explicit choice is restored server-side from the "theme" cookie
   (see the layouts), so there is no flash of the wrong theme and no
   <script> rendered by React.
+
+  Palette — "Ink & Paper":
+  Light is warm ivory paper with rich charcoal ink and a terracotta accent.
+  Dark is warm charcoal with soft white ink and a brighter terracotta.
+  Both are designed (not inverted): surfaces warm, hairline rules, and
+  contrast tuned for long reading sessions.
 */
 @custom-variant dark {
   &:where(.dark, .dark *) {
@@ -24,113 +32,114 @@
 @layer base {
   :root {
     color-scheme: light;
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 190 95% 32%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
+    --background: 45 40% 98%;
+    --foreground: 30 12% 12%;
+    --card: 45 45% 99%;
+    --card-foreground: 30 12% 12%;
+    --popover: 45 45% 99%;
+    --popover-foreground: 30 12% 12%;
+    --primary: 15 65% 40%;
+    --primary-foreground: 45 50% 98%;
+    --secondary: 40 20% 92%;
+    --secondary-foreground: 30 12% 20%;
+    --muted: 40 22% 93%;
+    --muted-foreground: 30 8% 42%;
+    --accent: 40 22% 92%;
+    --accent-foreground: 30 12% 20%;
+    --destructive: 0 65% 42%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 190 95% 32%;
-    --radius: 0.625rem;
-    --chart-1: 190 95% 40%;
-    --chart-2: 220 90% 60%;
-    --chart-3: 340 80% 60%;
-    --chart-4: 40 90% 55%;
-    --chart-5: 280 70% 60%;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 240 5.9% 90%;
-    --sidebar-ring: 190 95% 32%;
+    --border: 38 18% 87%;
+    --input: 38 18% 84%;
+    --ring: 15 65% 40%;
+    --radius: 0.5rem;
+    --chart-1: 15 65% 45%;
+    --chart-2: 215 45% 45%;
+    --chart-3: 150 30% 42%;
+    --chart-4: 38 75% 50%;
+    --chart-5: 300 30% 48%;
+    --sidebar-background: 45 35% 96.5%;
+    --sidebar-foreground: 30 10% 22%;
+    --sidebar-primary: 15 65% 40%;
+    --sidebar-primary-foreground: 45 50% 98%;
+    --sidebar-accent: 40 20% 92%;
+    --sidebar-accent-foreground: 30 12% 20%;
+    --sidebar-border: 38 18% 87%;
+    --sidebar-ring: 15 65% 40%;
+    --font-serif: "Newsreader Variable", Georgia, "Times New Roman", serif;
   }
 
   .dark {
     color-scheme: dark;
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 8% 6%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 8% 6%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 190 95% 42%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 4% 14%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 4% 14%;
-    --muted-foreground: 240 5% 64%;
-    --accent: 240 4% 14%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 50.6%;
+    --background: 28 8% 7%;
+    --foreground: 40 25% 92%;
+    --card: 28 8% 10%;
+    --card-foreground: 40 25% 92%;
+    --popover: 28 8% 11%;
+    --popover-foreground: 40 25% 92%;
+    --primary: 18 70% 62%;
+    --primary-foreground: 28 15% 10%;
+    --secondary: 28 7% 15%;
+    --secondary-foreground: 40 20% 90%;
+    --muted: 28 7% 15%;
+    --muted-foreground: 35 10% 62%;
+    --accent: 28 7% 16%;
+    --accent-foreground: 40 20% 92%;
+    --destructive: 0 55% 55%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 16%;
-    --input: 240 4% 18%;
-    --ring: 190 95% 42%;
-    --chart-1: 190 95% 50%;
-    --chart-2: 220 90% 70%;
-    --chart-3: 340 80% 70%;
-    --chart-4: 40 90% 65%;
-    --chart-5: 280 70% 70%;
-    --sidebar-background: 240 8% 6%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 190 95% 42%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4% 14%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 4% 16%;
-    --sidebar-ring: 190 95% 42%;
+    --border: 30 7% 18%;
+    --input: 30 7% 20%;
+    --ring: 18 70% 62%;
+    --chart-1: 18 70% 62%;
+    --chart-2: 210 55% 62%;
+    --chart-3: 145 35% 55%;
+    --chart-4: 38 80% 60%;
+    --chart-5: 300 35% 62%;
+    --sidebar-background: 28 8% 9%;
+    --sidebar-foreground: 40 20% 88%;
+    --sidebar-primary: 18 70% 62%;
+    --sidebar-primary-foreground: 28 15% 10%;
+    --sidebar-accent: 28 7% 15%;
+    --sidebar-accent-foreground: 40 20% 88%;
+    --sidebar-border: 30 7% 16%;
+    --sidebar-ring: 18 70% 62%;
   }
 
   /* System dark mode: OS preference dark, and the user hasn't forced light. */
   @media (prefers-color-scheme: dark) {
     :root:not(.light) {
       color-scheme: dark;
-      --background: 240 10% 3.9%;
-      --foreground: 0 0% 98%;
-      --card: 240 8% 6%;
-      --card-foreground: 0 0% 98%;
-      --popover: 240 8% 6%;
-      --popover-foreground: 0 0% 98%;
-      --primary: 190 95% 42%;
-      --primary-foreground: 0 0% 100%;
-      --secondary: 240 4% 14%;
-      --secondary-foreground: 0 0% 98%;
-      --muted: 240 4% 14%;
-      --muted-foreground: 240 5% 64%;
-      --accent: 240 4% 14%;
-      --accent-foreground: 0 0% 98%;
-      --destructive: 0 62.8% 50.6%;
+      --background: 28 8% 7%;
+      --foreground: 40 25% 92%;
+      --card: 28 8% 10%;
+      --card-foreground: 40 25% 92%;
+      --popover: 28 8% 11%;
+      --popover-foreground: 40 25% 92%;
+      --primary: 18 70% 62%;
+      --primary-foreground: 28 15% 10%;
+      --secondary: 28 7% 15%;
+      --secondary-foreground: 40 20% 90%;
+      --muted: 28 7% 15%;
+      --muted-foreground: 35 10% 62%;
+      --accent: 28 7% 16%;
+      --accent-foreground: 40 20% 92%;
+      --destructive: 0 55% 55%;
       --destructive-foreground: 0 0% 98%;
-      --border: 240 4% 16%;
-      --input: 240 4% 18%;
-      --ring: 190 95% 42%;
-      --chart-1: 190 95% 50%;
-      --chart-2: 220 90% 70%;
-      --chart-3: 340 80% 70%;
-      --chart-4: 40 90% 65%;
-      --chart-5: 280 70% 70%;
-      --sidebar-background: 240 8% 6%;
-      --sidebar-foreground: 240 4.8% 95.9%;
-      --sidebar-primary: 190 95% 42%;
-      --sidebar-primary-foreground: 0 0% 100%;
-      --sidebar-accent: 240 4% 14%;
-      --sidebar-accent-foreground: 240 4.8% 95.9%;
-      --sidebar-border: 240 4% 16%;
-      --sidebar-ring: 190 95% 42%;
+      --border: 30 7% 18%;
+      --input: 30 7% 20%;
+      --ring: 18 70% 62%;
+      --chart-1: 18 70% 62%;
+      --chart-2: 210 55% 62%;
+      --chart-3: 145 35% 55%;
+      --chart-4: 38 80% 60%;
+      --chart-5: 300 35% 62%;
+      --sidebar-background: 28 8% 9%;
+      --sidebar-foreground: 40 20% 88%;
+      --sidebar-primary: 18 70% 62%;
+      --sidebar-primary-foreground: 28 15% 10%;
+      --sidebar-accent: 28 7% 15%;
+      --sidebar-accent-foreground: 40 20% 88%;
+      --sidebar-border: 30 7% 16%;
+      --sidebar-ring: 18 70% 62%;
     }
   }
 }
@@ -150,12 +159,24 @@
     font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   }
 
+  /* Editorial serif — used for display type and long-form moments. */
+  .font-serif {
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+  }
+
   ::selection {
     @apply bg-primary/20 text-foreground;
   }
+
+  /* Consistent, quiet focus states across the app. */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring) / 0.7);
+    outline-offset: 2px;
+  }
 }
 
-/* Refined scrollbar */
+/* Refined scrollbar + shared keyframes */
 @layer utilities {
   @keyframes skeleton-shimmer {
     100% {
@@ -169,6 +190,17 @@
     }
     100% {
       transform: translateX(calc(200% + var(--shimmer-z))) translateY(0) scale(1);
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
@@ -197,25 +229,86 @@
   }
 }
 
-/* TipTap / prose content refinements for post body */
-.prose :where(a):not(:where(.not-prose *)) {
-  @apply text-primary no-underline hover:underline underline-offset-4;
+/*
+  Editorial long-form typography for article bodies (.prose).
+  Serif headings, generous line-height, hairline blockquotes.
+  The renderer in src/lib/article-html.tsx builds the elements;
+  this block only styles them.
+*/
+.prose :where(p):not(:where(.not-prose *)) {
+  @apply leading-[1.75];
 }
-.prose :where(h2, h3, h4):not(:where(.not-prose *)) {
+.prose :where(h1, h2, h3, h4):not(:where(.not-prose *)) {
+  font-family: var(--font-serif);
   @apply font-semibold tracking-tight scroll-mt-24;
 }
+.prose :where(h2):not(:where(.not-prose *)) {
+  @apply mt-12 mb-4 text-2xl md:text-[1.7rem] leading-snug;
+}
+.prose :where(h3):not(:where(.not-prose *)) {
+  @apply mt-9 mb-3 text-xl md:text-2xl leading-snug;
+}
+.prose :where(h4):not(:where(.not-prose *)) {
+  @apply mt-8 mb-2 text-lg md:text-xl;
+}
+.prose :where(a):not(:where(.not-prose *)) {
+  @apply text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary;
+}
+.prose :where(strong):not(:where(.not-prose *)) {
+  @apply font-semibold text-foreground;
+}
 .prose :where(img):not(:where(.not-prose *)) {
-  @apply rounded-xl;
+  @apply rounded-lg border border-border/70;
 }
 .prose :where(blockquote):not(:where(.not-prose *)) {
-  @apply border-l-primary/40 pl-4 italic text-muted-foreground;
+  font-family: var(--font-serif);
+  @apply my-8 border-l-2 border-primary/60 pl-5 text-xl italic leading-relaxed text-foreground/85 md:text-[1.35rem];
+}
+.prose :where(blockquote p):not(:where(.not-prose *)) {
+  @apply m-0;
 }
 .prose :where(code):not(:where(.not-prose *, pre *)) {
-  @apply rounded-md bg-muted px-1.5 py-0.5 text-sm font-mono;
+  @apply rounded-md bg-muted px-1.5 py-0.5 text-[0.875em] font-mono;
 }
 .prose :where(pre):not(:where(.not-prose *)) {
-  @apply rounded-xl border border-border bg-muted/50 p-4 overflow-x-auto text-sm;
+  @apply my-6 rounded-xl border border-border/70 bg-muted/60 p-5 overflow-x-auto text-sm leading-relaxed;
+}
+.prose :where(pre code):not(:where(.not-prose *)) {
+  @apply bg-transparent p-0;
 }
 .prose :where(ul, ol):not(:where(.not-prose *)) {
-  @apply space-y-2;
+  @apply my-5 space-y-2.5;
+}
+.prose :where(ul):not(:where(.not-prose *)) {
+  @apply list-disc pl-6;
+}
+.prose :where(ol):not(:where(.not-prose *)) {
+  @apply list-decimal pl-6;
+}
+.prose :where(li):not(:where(.not-prose *)) {
+  @apply leading-[1.7] pl-1 marker:text-muted-foreground;
+}
+.prose :where(hr):not(:where(.not-prose *)) {
+  @apply my-10 border-border/70;
+}
+.prose :where(table):not(:where(.not-prose *)) {
+  @apply my-6 w-full border-collapse text-sm;
+}
+.prose :where(th):not(:where(.not-prose *)) {
+  @apply border-b border-border px-3 py-2 text-left font-semibold;
+}
+.prose :where(td):not(:where(.not-prose *)) {
+  @apply border-b border-border/60 px-3 py-2 align-top;
+}
+.prose :where(figcaption):not(:where(.not-prose *)) {
+  @apply mt-2 text-center text-sm text-muted-foreground;
+}
+.prose :where(mark):not(:where(.not-prose *)) {
+  @apply bg-primary/15 text-foreground rounded-sm px-0.5;
+}
+
+/* Optional editorial drop cap for article openers. */
+.drop-cap::first-letter {
+  font-family: var(--font-serif);
+  @apply float-left mr-3 mt-1 text-6xl font-semibold leading-[0.8] text-primary;
 }
